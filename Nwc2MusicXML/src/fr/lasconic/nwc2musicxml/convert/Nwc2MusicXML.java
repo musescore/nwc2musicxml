@@ -2,6 +2,10 @@ package fr.lasconic.nwc2musicxml.convert;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -81,12 +85,6 @@ public class Nwc2MusicXML implements IConstants {
 		}
 
 		if (res != ERROR) {
-			// check
-			/*
-			 * if (!score.checkCoherence()) {
-			 * System.err.println("Coherence check failed"); return null; }
-			 */
-
 			String title = "test";
 			if (score.metadata != null && score.metadata.title != null) {
 				title = score.metadata.title;
@@ -153,7 +151,7 @@ public class Nwc2MusicXML implements IConstants {
 			String[] sArray = line.split("\\|");
 			if (sArray.length > 0) {
 				String type = sArray[1];
-				System.out.println(type);
+				//System.out.println(type);
 				if (type.compareTo("AddStaff") == 0) { // Add Staff
 					// remove last measure if empty
 					if (measure != null && measure.isEmpty()) {
@@ -1040,8 +1038,6 @@ public class Nwc2MusicXML implements IConstants {
 			}
 		}
 
-		
-
 		if (note.accidental) {
 			Node acc = doc.createElement(ACCIDENTAL_TAG);
 			Node accValue = null;
@@ -1065,7 +1061,7 @@ public class Nwc2MusicXML implements IConstants {
 			acc.appendChild(accValue);
 			noteEl.appendChild(acc);
 		}
-			
+
 		if (note.isPartOfTriplet()) {
 			Element timeModifEl = doc.createElement(TIMEMODIFICATION_TAG);
 			Element actualEl = doc.createElement(ACTUALNOTES_TAG);
@@ -1082,13 +1078,13 @@ public class Nwc2MusicXML implements IConstants {
 			stemEl.appendChild(doc.createTextNode(note.stem));
 			noteEl.appendChild(stemEl);
 		}
-		
-		if(note.notehead != null){
+
+		if (note.notehead != null) {
 			Element noteheadEl = doc.createElement(NOTEHEAD_TAG);
 			noteheadEl.appendChild(doc.createTextNode(note.notehead));
 			noteEl.appendChild(noteheadEl);
 		}
-		
+
 		Element staffElement = doc.createElement(STAFF_TAG);
 		staffElement.appendChild(doc.createTextNode(new Integer(staffId)
 				.toString()));
@@ -1330,6 +1326,33 @@ public class Nwc2MusicXML implements IConstants {
 
 		keyEl.appendChild(modeEl);
 		return keyEl;
+	}
+
+	public static void main(String[] args) {
+		if (args.length == 2) {
+			File in = new File(args[0]);
+			File out = new File(args[1]);
+			if (in.exists()) {
+				try {
+					FileInputStream fileInputStream = new FileInputStream(in);
+					Nwc2MusicXML converter = new Nwc2MusicXML();
+					String title = converter.convert(fileInputStream);
+					System.out.println("Converting... title: [" + title + "]");
+					if (converter.write(new FileOutputStream(out)) == -1){
+						System.out.println("Error while converting [" + title + "]");
+					}else{
+						System.out.println("Success !  [" + out.getAbsolutePath() + "]");
+					}
+				} catch (FileNotFoundException e) {
+					System.out.println("File " + in.getAbsolutePath() + " not found");
+				}
+			}else{
+				System.out.println("File " + in.getAbsolutePath() + " not found");
+			}
+
+		} else {
+			System.out.println("usage : java -cp . nwc2musicxml.jar fr.lasconic.nwc2musicxml.Nwc2MusicXML file.nwctxt myfile.xml");
+		}
 	}
 
 }
