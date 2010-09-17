@@ -36,6 +36,7 @@ public interface IConstants {
 	
 	public static final String NOTE_TAG = "note";
 	public static final String CHORD_TAG = "chord";
+	public static final String GRACE_TAG = "grace";
 	public static final String PITCH_TAG = "pitch";
 	public static final String REST_TAG = "rest";
 	public static final String STEP_TAG = "step";
