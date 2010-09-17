@@ -44,6 +44,7 @@ import fr.lasconic.nwc2musicxml.model.Score;
 import fr.lasconic.nwc2musicxml.model.Staff;
 import fr.lasconic.nwc2musicxml.model.Text;
 import fr.lasconic.nwc2musicxml.model.TimeSig;
+import fr.lasconic.nwc2musicxml.model.Wedge;
 
 public class Nwc2MusicXML implements IConstants {
 	private static final int ERROR = -1;
@@ -114,6 +115,7 @@ public class Nwc2MusicXML implements IConstants {
 		if (staff == null) {
 			p = new Part();
 			score.addPart(p);
+			currentStaffId = 1;
 			staff = new Staff();
 			p.addStaff(staff);
 			currentStaffId++;
@@ -136,32 +138,46 @@ public class Nwc2MusicXML implements IConstants {
 				return ERROR;
 			}
 
+		String[] sArray2;
+		String sA;
+		int voiceId = (currentStaffId - 1) * 4 + 1;
+
 		if (line.startsWith("!NoteWorthyComposer-End")
 				|| line.startsWith("!NoteWorthyComposerClip-End")) {
+			//reset wedge (cresc/dimin)
+			if( Wedge.currentWedge != null ) {
+				measure.addElement( new Wedge( "Stop" ), voiceId );
+			}
+			Wedge.currentWedge = null;
 			// remove last measure if empty
 			if (measure != null && measure.isEmpty()) {
 				staff.measures.remove(measure);
 			}
 			return END_OF_FILE;
 		}
-		String[] sArray2;
-		String sA;
-		int voiceId = (currentStaffId - 1) * 4 + 1;
+		
 		if (line.startsWith("|")) {
 			String[] sArray = line.split("\\|");
 			if (sArray.length > 0) {
 				String type = sArray[1];
 				//System.out.println(type);
 				if (type.compareTo("AddStaff") == 0) { // Add Staff
+					//reset wedge (cresc/dimin)
+					if( Wedge.currentWedge != null ) {
+						measure.addElement( new Wedge( "Stop" ), voiceId );
+					}
+					Wedge.currentWedge = null;
 					// remove last measure if empty
 					if (measure != null && measure.isEmpty()) {
 						staff.measures.remove(measure);
 					}
 					staff = new Staff();
 					currentStaffId++;
+					
 					measure = new Measure();
 					staff.addMeasure(measure);
 					p = new Part();
+					currentStaffId = 1;
 					score.addPart(p);
 					p.addStaff(staff);
 					for (int i = 2; i < sArray.length; i++) {
@@ -298,9 +314,12 @@ public class Nwc2MusicXML implements IConstants {
 
 				} else if (type.compareTo("Note") == 0) { // Note
 					init();
+					measure.notesCount++;
 					voiceId = (currentStaffId - 1) * 4 + 1;
 					Note note = new Note();
 					note.firstInChord = true;
+					
+					String[] optsArr = {}; 
 					for (int i = 2; i < sArray.length; i++) {
 						sA = sArray[i];
 						if (sA.contains("Pos")) {
@@ -312,18 +331,36 @@ public class Nwc2MusicXML implements IConstants {
 						} else if (sA.contains("Opts")) {
 							sArray2 = sA.split(":");
 							note.setOpts(sArray2[1]);
+							optsArr = sArray2;
+							//find cresc/dimin
 						}
 					}
+					Wedge.findWedges( optsArr, measure, voiceId );
 					measure.addElement(note, voiceId);
-				} else if (type.compareTo("Chord") == 0) { // Chord
+				} else if (type.compareTo("Chord") == 0
+						|| type.compareTo("RestChord") == 0) { // Chord
 					init();
+					measure.notesCount++;
 					voiceId = (currentStaffId - 1) * 4 + 1;
 					String dur = "";
 					String dur2 = "";
 					ArrayList<Note> notes = new ArrayList<Note>();
+					
+					String[] optsArr = {}; 
+					for (int i = 2; i < sArray.length; i++) {
+						sA = sArray[i];
+					    if (sA.contains("Opts")) {
+							sArray2 = sA.split(":");
+							optsArr = sArray2;
+						}
+					}
+					//find cresc/dimin
+					Wedge.findWedges( optsArr, measure, voiceId );
+					boolean pos1 = false, pos2 = false;
 					for (int i = 2; i < sArray.length; i++) {
 						sA = sArray[i];
 						if (sA.contains("Pos2")) {
+							pos2 = true;
 							sArray2 = sA.split(":");
 							String[] sArray3 = sArray2[1].split(",");
 							boolean chord = false;
@@ -350,6 +387,7 @@ public class Nwc2MusicXML implements IConstants {
 							sArray2 = sA.split(":");
 							dur2 = sArray2[1];
 						} else if (sA.contains("Pos")) {
+							pos1 = true;
 							sArray2 = sA.split(":");
 							if (sArray2[0].compareTo("Pos") == 0) {
 								String[] sArray3 = sArray2[1].split(",");
@@ -383,19 +421,53 @@ public class Nwc2MusicXML implements IConstants {
 							}
 						}
 					}
+					if (type.compareTo("RestChord") == 0) {
+						if (!pos1) {
+							Note note = new Note();
+							note.rest = true;
+							note.firstInChord = true;
+							note.dur = dur;
+							measure.addElement(note, voiceId);
+							if (line.contains("Dur2"))
+								measure.measureOffset -= note.getDuration();
+						}
+						if (!pos2) {
+							Note note = new Note();
+							note.rest = true;
+							note.firstInChord = true;
+							note.dur = dur2;
+							if (measure.measureOffset > 0) {
+								measure.addElement(new Forward(
+										measure.measureOffset), voiceId + 1);
+							}
+							measure.addElement(note, voiceId + 1);
+							measure.measureOffset = -1 * note.getDuration();
+						}
+					}
 				} else if (type.compareTo("Rest") == 0) { // Rest
 					init();
+					measure.notesCount++;
 					voiceId = (currentStaffId - 1) * 4 + 1;
 					Note note = new Note();
 					note.rest = true;
 					note.firstInChord = true;
+					
+					String[] optsArr = {};
 					for (int i = 2; i < sArray.length; i++) {
 						sA = sArray[i];
 						if (sA.contains("Dur")) {
 							sArray2 = sA.split(":");
 							note.dur = sArray2[1];
+						} else if (sA.contains("Opts")) {
+							sArray2 = sA.split(":");
+							optsArr = sArray2;
 						}
 					}
+					if ("Whole".compareTo(note.dur) == 0) {
+						measure.wholeRest = true;
+					} 
+					//find cresc/dimin
+					Wedge.findWedges( optsArr, measure, voiceId );
 					measure.addElement(note, voiceId);
 				} else if (type.compareTo("Bar") == 0) {
 					Measure newMeasure;
@@ -488,6 +560,19 @@ public class Nwc2MusicXML implements IConstants {
 				}
 
 			}
+			try {
+				System.out.println( staff.measures.size() + ": " );
+				for( IElement e: measure.voices.get( voiceId ) ) {
+					if( e instanceof Wedge ) {
+						System.out.println( ( (Wedge) e ).type );
+					} else {
+						System.out.println( "something" );
+					}
+				}
+				System.out.println();
+			} catch( NullPointerException e ) {
+				
+			}
 		}
 		return CONTINUE;
 	}
@@ -510,6 +595,7 @@ public class Nwc2MusicXML implements IConstants {
 			Transformer trans = transfac.newTransformer();
 			// trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 			trans.setOutputProperty(OutputKeys.INDENT, "yes");
+			trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			trans.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC,
 					"-//Recordare//DTD MusicXML 2.0 Partwise//EN");
 			trans.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM,
@@ -626,6 +712,7 @@ public class Nwc2MusicXML implements IConstants {
 						measureEl
 								.setAttribute(NUMBER_ATTRIBUTE, "" + (mId + 1));
 						partEl.appendChild(measureEl);
+						attributesEl = null;
 						Measure m0 = part.staves.get(0).measures.get(mId);
 						if (part.staves.get(0).measures.get(mId).lineBreak) {
 							Element printEl = doc.createElement(PRINT_TAG);
@@ -721,21 +808,22 @@ public class Nwc2MusicXML implements IConstants {
 										}
 									} else if (element instanceof TimeSig) {
 										TimeSig timeSig = (TimeSig) element;
-										if (addedNote) {
+										if (!addedNote && attributesEl == null) {
 											// need a new attribute element
 											attributesEl = createMeasureGeneralAttributes(
 													doc, null, null, timeSig,
 													part.staves.size(), stId);
 											measureEl.appendChild(attributesEl);
+
 										} else {
 											// append to the existing attribute
 											// element
 											appendTo(attributesEl, timeSig, doc);
 										}
-
+										part.currentTimeSig = timeSig;
 									} else if (element instanceof Key) {
 										Key key = (Key) element;
-										if (addedNote) {
+										if (!addedNote && attributesEl == null) {
 											// need a new attribute element
 											attributesEl = createMeasureGeneralAttributes(
 													doc, null, key, null,
@@ -749,8 +837,11 @@ public class Nwc2MusicXML implements IConstants {
 										}
 										staff.currentKey = key;
 
+									} else if( element instanceof Wedge ) {
+										Element el = ((Wedge)element).toElement( doc );
+										measureEl.appendChild( el );
 									} else if (element instanceof Note) {
-										if (attributesEl == null) {
+										if (attributesEl == null && mId == 0) {
 											attributesEl = createMeasureGeneralAttributes(
 													doc, staff.currentClef,
 													null, null, part.staves
@@ -759,9 +850,17 @@ public class Nwc2MusicXML implements IConstants {
 											attributesMeasure = mId;
 										}
 										Note note = (Note) element;
-
+										// full rest
+										int fullRestDuration = -1;
+										if (m.isFullRest()) {
+											fullRestDuration = (part.currentTimeSig
+													.getBeats() * 4 / part.currentTimeSig
+													.getBeatType())
+													* DIVISIONS_PER_QUARTER_NOTE;
+										}
 										Element noteEl = convert(doc, note,
-												stId, voiceId, staff, noteKeys);
+												stId, voiceId, staff, noteKeys,
+												fullRestDuration);
 										measureEl.appendChild(noteEl);
 
 										if (note.firstInChord)
@@ -919,7 +1018,7 @@ public class Nwc2MusicXML implements IConstants {
 	}
 
 	protected Element convert(Document doc, Note note, int staffId,
-			int voiceId, Staff staff, int[] noteKeys) {
+			int voiceId, Staff staff, int[] noteKeys, int fullRestDuration) {
 
 		Clef clef = staff.currentClef;
 		Key key = staff.currentKey;
@@ -946,7 +1045,10 @@ public class Nwc2MusicXML implements IConstants {
 			Element rest = doc.createElement(REST_TAG);
 			noteEl.appendChild(rest);
 		} else {
-
+			if (note.grace()) {
+				Element grace = doc.createElement(GRACE_TAG);
+				noteEl.appendChild(grace);
+			}
 			String stepValue = note.getStep(clef);
 			int octave = note.getOctave(clef);
 			int alterValue = key.getAlterForStep(stepValue);
@@ -998,6 +1100,20 @@ public class Nwc2MusicXML implements IConstants {
 
 			noteEl.appendChild(pitchEl);
 
+		}
+		if (!note.grace()) {
+
+			int relDuration = note.getDuration();
+			if (fullRestDuration != -1) {
+				relDuration = fullRestDuration;
+			}
+			durationEl.appendChild(doc.createTextNode(new Integer(relDuration)
+					.toString()));
+			noteEl.appendChild(durationEl);
+		}
+
+		if(!note.rest){
+			String stepValue = note.getStep(clef);
 			int step = "CDEFGABC".indexOf(stepValue);
 			if (tieList.contains(step)) {
 				Element tieEl = doc.createElement(TIE_TAG);
@@ -1012,13 +1128,8 @@ public class Nwc2MusicXML implements IConstants {
 				noteEl.appendChild(tieEl);
 				tieList.add(step);
 			}
-
 		}
-		int relDuration = note.getDuration();
-		durationEl.appendChild(doc.createTextNode(new Integer(relDuration)
-				.toString()));
-		noteEl.appendChild(durationEl);
-
+		
 		Element voiceElement = doc.createElement(VOICE_TAG);
 		voiceElement.appendChild(doc.createTextNode(String.valueOf(voiceId)));
 		noteEl.appendChild(voiceElement);
@@ -1082,6 +1193,8 @@ public class Nwc2MusicXML implements IConstants {
 		if (note.notehead != null) {
 			Element noteheadEl = doc.createElement(NOTEHEAD_TAG);
 			noteheadEl.appendChild(doc.createTextNode(note.notehead));
+			if( note.notehead.equals( "diamond" ) )
+				noteheadEl.setAttribute( "filled", "no" );
 			noteEl.appendChild(noteheadEl);
 		}
 
@@ -1338,20 +1451,25 @@ public class Nwc2MusicXML implements IConstants {
 					Nwc2MusicXML converter = new Nwc2MusicXML();
 					String title = converter.convert(fileInputStream);
 					System.out.println("Converting... title: [" + title + "]");
-					if (converter.write(new FileOutputStream(out)) == -1){
-						System.out.println("Error while converting [" + title + "]");
-					}else{
-						System.out.println("Success !  [" + out.getAbsolutePath() + "]");
+					if (converter.write(new FileOutputStream(out)) == -1) {
+						System.out.println("Error while converting [" + title
+								+ "]");
+					} else {
+						System.out.println("Success !  ["
+								+ out.getAbsolutePath() + "]");
 					}
 				} catch (FileNotFoundException e) {
-					System.out.println("File " + in.getAbsolutePath() + " not found");
+					System.out.println("File " + in.getAbsolutePath()
+							+ " not found");
 				}
-			}else{
-				System.out.println("File " + in.getAbsolutePath() + " not found");
+			} else {
+				System.out.println("File " + in.getAbsolutePath()
+						+ " not found");
 			}
 
 		} else {
-			System.out.println("usage : java -cp . nwc2musicxml.jar fr.lasconic.nwc2musicxml.Nwc2MusicXML file.nwctxt myfile.xml");
+			System.out
+					.println("usage : java -cp . nwc2musicxml.jar fr.lasconic.nwc2musicxml.Nwc2MusicXML file.nwctxt myfile.xml");
 		}
 	}
 

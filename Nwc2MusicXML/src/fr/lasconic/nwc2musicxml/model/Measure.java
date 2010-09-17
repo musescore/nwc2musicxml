@@ -12,6 +12,9 @@ public class Measure {
 	public boolean leftRepeat;
 	public boolean rightRepeat;
 	
+	public boolean wholeRest; // if we got a whole rest in the measure
+	public int notesCount;
+	
 	public int measureOffset; //keep track of advancement to add forward on voice > 1
 
 	public Measure() {
@@ -23,8 +26,14 @@ public class Measure {
 		measureOffset = 0;
 		leftRepeat = false;
 		rightRepeat = false;
+		wholeRest = false;
+		notesCount = 0;
 	}
 
+	public boolean isFullRest(){
+		return wholeRest && notesCount == 1;
+	}
+	
 	public void addElement(IElement element, int voiceNumber) {
 		ArrayList<IElement> voice = voices.get(voiceNumber);
 		if (voice == null) {

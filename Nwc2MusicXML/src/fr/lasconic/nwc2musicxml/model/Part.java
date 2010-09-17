@@ -13,6 +13,8 @@ public class Part {
 	
 	public ArrayList<Staff> staves;
 
+	public TimeSig currentTimeSig;
+	
 	public Part() {
 		this.staves = new ArrayList<Staff>();
 		this.trans = 0;
