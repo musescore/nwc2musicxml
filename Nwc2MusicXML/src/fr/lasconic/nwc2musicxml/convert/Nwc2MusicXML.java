@@ -303,10 +303,11 @@ public class Nwc2MusicXML implements IConstants {
 						sA = sArray[i];
 						if (sA.contains("Text")) {
 							sArray2 = sA.split(":");
-							if (sArray2[1].length() > 2) {
+							int index = sA.indexOf(':');
+							if(index > 3){
+								String l = sA.substring(index+1);
 								Lyrics lyrics = new Lyrics();
-								lyrics.parse(sArray2[1].substring(1, sArray2[1]
-										.length() - 1));
+								lyrics.parse(l.substring(1, l.length() - 1));
 								staff.lyricsLine.add(lyrics);
 							}
 						}
