@@ -5,7 +5,12 @@ public class TimeSig implements IElement{
 	private int beats;
 	private int beatType;
 	private String symbol;
-
+	
+	public TimeSig(){
+		beats = 4;
+		beatType = 4;
+	}
+	
 	public void parse(String signature) {
 		beats = 4;
 		beatType = 4;

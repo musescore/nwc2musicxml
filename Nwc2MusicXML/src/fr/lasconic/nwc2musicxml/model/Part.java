@@ -21,6 +21,7 @@ public class Part {
 		this.program = -1;
 		this.endRepeat = false;
 		this.barLineStyle = "light-heavy";
+		this.currentTimeSig = new TimeSig();
 	}
 
 	public void addStaff(Staff staff) {
