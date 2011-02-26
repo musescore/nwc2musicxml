@@ -14,8 +14,8 @@ public class Lyric {
 	public Lyric(String text) {
 		this();
 		this.text = text.replaceAll("_", " ");
-		this.text = this.text.replaceAll("\\'", "'");
-		this.text = this.text.replaceAll("\\\"", "'");
+		this.text = this.text.replaceAll("\\\\'", "'");
+		this.text = this.text.replaceAll("\\\\\"", "\"");
 	}
 
 	@Override

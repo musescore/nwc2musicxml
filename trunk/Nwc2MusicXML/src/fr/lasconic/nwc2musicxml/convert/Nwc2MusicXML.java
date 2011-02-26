@@ -99,8 +99,8 @@ public class Nwc2MusicXML implements IConstants {
 	public int write(OutputStream out) {
 		Document doc = createMusicXmlDOM();
 		try {
-			writeAsMusicXML(doc,
-					new BufferedWriter(new OutputStreamWriter(out)));
+			writeAsMusicXML(doc, new BufferedWriter(new OutputStreamWriter(out,
+					"UTF-8")));
 
 			return 0;
 		} catch (IOException e) {
@@ -144,9 +144,9 @@ public class Nwc2MusicXML implements IConstants {
 
 		if (line.startsWith("!NoteWorthyComposer-End")
 				|| line.startsWith("!NoteWorthyComposerClip-End")) {
-			//reset wedge (cresc/dimin)
-			if( Wedge.currentWedge != null ) {
-				measure.addElement( new Wedge( "Stop" ), voiceId );
+			// reset wedge (cresc/dimin)
+			if (Wedge.currentWedge != null) {
+				measure.addElement(new Wedge("Stop"), voiceId);
 			}
 			Wedge.currentWedge = null;
 			// remove last measure if empty
@@ -155,16 +155,16 @@ public class Nwc2MusicXML implements IConstants {
 			}
 			return END_OF_FILE;
 		}
-		
+
 		if (line.startsWith("|")) {
 			String[] sArray = line.split("\\|");
 			if (sArray.length > 0) {
 				String type = sArray[1];
-				//System.out.println(type);
+				// System.out.println(type);
 				if (type.compareTo("AddStaff") == 0) { // Add Staff
-					//reset wedge (cresc/dimin)
-					if( Wedge.currentWedge != null ) {
-						measure.addElement( new Wedge( "Stop" ), voiceId );
+					// reset wedge (cresc/dimin)
+					if (Wedge.currentWedge != null) {
+						measure.addElement(new Wedge("Stop"), voiceId);
 					}
 					Wedge.currentWedge = null;
 					// remove last measure if empty
@@ -173,7 +173,7 @@ public class Nwc2MusicXML implements IConstants {
 					}
 					staff = new Staff();
 					currentStaffId++;
-					
+
 					measure = new Measure();
 					staff.addMeasure(measure);
 					p = new Part();
@@ -304,8 +304,8 @@ public class Nwc2MusicXML implements IConstants {
 						if (sA.contains("Text")) {
 							sArray2 = sA.split(":");
 							int index = sA.indexOf(':');
-							if(index > 3){
-								String l = sA.substring(index+1);
+							if (index > 3) {
+								String l = sA.substring(index + 1);
 								Lyrics lyrics = new Lyrics();
 								lyrics.parse(l.substring(1, l.length() - 1));
 								staff.lyricsLine.add(lyrics);
@@ -319,8 +319,8 @@ public class Nwc2MusicXML implements IConstants {
 					voiceId = (currentStaffId - 1) * 4 + 1;
 					Note note = new Note();
 					note.firstInChord = true;
-					
-					String[] optsArr = {}; 
+
+					String[] optsArr = {};
 					for (int i = 2; i < sArray.length; i++) {
 						sA = sArray[i];
 						if (sA.contains("Pos")) {
@@ -333,10 +333,10 @@ public class Nwc2MusicXML implements IConstants {
 							sArray2 = sA.split(":");
 							note.setOpts(sArray2[1]);
 							optsArr = sArray2;
-							//find cresc/dimin
+							// find cresc/dimin
 						}
 					}
-					Wedge.findWedges( optsArr, measure, voiceId );
+					Wedge.findWedges(optsArr, measure, voiceId);
 					measure.addElement(note, voiceId);
 				} else if (type.compareTo("Chord") == 0
 						|| type.compareTo("RestChord") == 0) { // Chord
@@ -346,17 +346,17 @@ public class Nwc2MusicXML implements IConstants {
 					String dur = "";
 					String dur2 = "";
 					ArrayList<Note> notes = new ArrayList<Note>();
-					
-					String[] optsArr = {}; 
+
+					String[] optsArr = {};
 					for (int i = 2; i < sArray.length; i++) {
 						sA = sArray[i];
-					    if (sA.contains("Opts")) {
+						if (sA.contains("Opts")) {
 							sArray2 = sA.split(":");
 							optsArr = sArray2;
 						}
 					}
-					//find cresc/dimin
-					Wedge.findWedges( optsArr, measure, voiceId );
+					// find cresc/dimin
+					Wedge.findWedges(optsArr, measure, voiceId);
 					boolean pos1 = false, pos2 = false;
 					for (int i = 2; i < sArray.length; i++) {
 						sA = sArray[i];
@@ -452,7 +452,7 @@ public class Nwc2MusicXML implements IConstants {
 					Note note = new Note();
 					note.rest = true;
 					note.firstInChord = true;
-					
+
 					String[] optsArr = {};
 					for (int i = 2; i < sArray.length; i++) {
 						sA = sArray[i];
@@ -466,9 +466,9 @@ public class Nwc2MusicXML implements IConstants {
 					}
 					if ("Whole".compareTo(note.dur) == 0) {
 						measure.wholeRest = true;
-					} 
-					//find cresc/dimin
-					Wedge.findWedges( optsArr, measure, voiceId );
+					}
+					// find cresc/dimin
+					Wedge.findWedges(optsArr, measure, voiceId);
 					measure.addElement(note, voiceId);
 				} else if (type.compareTo("Bar") == 0) {
 					Measure newMeasure;
@@ -562,17 +562,17 @@ public class Nwc2MusicXML implements IConstants {
 
 			}
 			try {
-				System.out.println( staff.measures.size() + ": " );
-				for( IElement e: measure.voices.get( voiceId ) ) {
-					if( e instanceof Wedge ) {
-						System.out.println( ( (Wedge) e ).type );
+				// System.out.println( staff.measures.size() + ": " );
+				for (IElement e : measure.voices.get(voiceId)) {
+					if (e instanceof Wedge) {
+						System.out.println(((Wedge) e).type);
 					} else {
-						System.out.println( "something" );
+						// System.out.println( "something" );
 					}
 				}
-				System.out.println();
-			} catch( NullPointerException e ) {
-				
+				// System.out.println();
+			} catch (NullPointerException e) {
+
 			}
 		}
 		return CONTINUE;
@@ -596,7 +596,8 @@ public class Nwc2MusicXML implements IConstants {
 			Transformer trans = transfac.newTransformer();
 			// trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 			trans.setOutputProperty(OutputKeys.INDENT, "yes");
-			trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+			trans.setOutputProperty(
+					"{http://xml.apache.org/xslt}indent-amount", "2");
 			trans.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC,
 					"-//Recordare//DTD MusicXML 2.0 Partwise//EN");
 			trans.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM,
@@ -833,14 +834,15 @@ public class Nwc2MusicXML implements IConstants {
 										} else {
 											// append to the existing attribute
 											// element
-											appendTo(attributesEl, key, doc);
-
+											if (attributesEl != null)
+												appendTo(attributesEl, key, doc);
 										}
 										staff.currentKey = key;
 
-									} else if( element instanceof Wedge ) {
-										Element el = ((Wedge)element).toElement( doc );
-										measureEl.appendChild( el );
+									} else if (element instanceof Wedge) {
+										Element el = ((Wedge) element)
+												.toElement(doc);
+										measureEl.appendChild(el);
 									} else if (element instanceof Note) {
 										if (attributesEl == null && mId == 0) {
 											attributesEl = createMeasureGeneralAttributes(
@@ -1113,7 +1115,7 @@ public class Nwc2MusicXML implements IConstants {
 			noteEl.appendChild(durationEl);
 		}
 
-		if(!note.rest){
+		if (!note.rest) {
 			String stepValue = note.getStep(clef);
 			int step = "CDEFGABC".indexOf(stepValue);
 			if (tieList.contains(step)) {
@@ -1130,7 +1132,7 @@ public class Nwc2MusicXML implements IConstants {
 				tieList.add(step);
 			}
 		}
-		
+
 		Element voiceElement = doc.createElement(VOICE_TAG);
 		voiceElement.appendChild(doc.createTextNode(String.valueOf(voiceId)));
 		noteEl.appendChild(voiceElement);
@@ -1194,8 +1196,8 @@ public class Nwc2MusicXML implements IConstants {
 		if (note.notehead != null) {
 			Element noteheadEl = doc.createElement(NOTEHEAD_TAG);
 			noteheadEl.appendChild(doc.createTextNode(note.notehead));
-			if( note.notehead.equals( "diamond" ) )
-				noteheadEl.setAttribute( "filled", "no" );
+			if (note.notehead.equals("diamond"))
+				noteheadEl.setAttribute("filled", "no");
 			noteEl.appendChild(noteheadEl);
 		}
 
@@ -1289,12 +1291,12 @@ public class Nwc2MusicXML implements IConstants {
 							lyricEl.setAttribute(NUMBER_ATTRIBUTE, String
 									.valueOf(number));
 						}
-						Element textEl = doc.createElement(TEXT_TAG);
-						textEl.appendChild(doc.createTextNode(l.text));
-						lyricEl.appendChild(textEl);
 						Element syllabicEl = doc.createElement(SYLLABIC_TAG);
 						syllabicEl.appendChild(doc.createTextNode(l.syllabic));
 						lyricEl.appendChild(syllabicEl);
+						Element textEl = doc.createElement(TEXT_TAG);
+						textEl.appendChild(doc.createTextNode(l.text));
+						lyricEl.appendChild(textEl);
 						if (l.endLine) {
 							lyricEl
 									.appendChild(doc
