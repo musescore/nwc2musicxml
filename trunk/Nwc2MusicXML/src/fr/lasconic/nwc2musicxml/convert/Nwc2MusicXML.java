@@ -786,6 +786,7 @@ public class Nwc2MusicXML implements IConstants {
 										Clef clef = (Clef) element;
 										staff.currentClef = clef;
 										if (attributesEl == null) {
+											//create a new attribute element
 											attributesEl = createMeasureGeneralAttributes(
 													doc, clef, null, null,
 													part.staves.size(), stId);
@@ -810,13 +811,17 @@ public class Nwc2MusicXML implements IConstants {
 										}
 									} else if (element instanceof TimeSig) {
 										TimeSig timeSig = (TimeSig) element;
-										if (!addedNote && attributesEl == null) {
-											// need a new attribute element
-											attributesEl = createMeasureGeneralAttributes(
-													doc, null, null, timeSig,
-													part.staves.size(), stId);
-											measureEl.appendChild(attributesEl);
-
+										if (attributesEl == null) {
+											if(!addedNote) {
+												// need a new attribute element
+												attributesEl = createMeasureGeneralAttributes(
+														doc, null, null, timeSig,
+														part.staves.size(), stId);
+												measureEl.appendChild(attributesEl);
+												attributesMeasure = mId;
+											}else{
+												//note added -> create a new attribute element for next measure?
+											}
 										} else {
 											// append to the existing attribute
 											// element
@@ -825,12 +830,17 @@ public class Nwc2MusicXML implements IConstants {
 										part.currentTimeSig = timeSig;
 									} else if (element instanceof Key) {
 										Key key = (Key) element;
-										if (!addedNote && attributesEl == null) {
+										if (attributesEl == null) {
+											if(!addedNote) {
 											// need a new attribute element
-											attributesEl = createMeasureGeneralAttributes(
-													doc, null, key, null,
-													part.staves.size(), stId);
-											measureEl.appendChild(attributesEl);
+												attributesEl = createMeasureGeneralAttributes(
+														doc, null, key, null,
+														part.staves.size(), stId);
+												measureEl.appendChild(attributesEl);
+												attributesMeasure = mId;
+											}else{
+												//note added -> create a new attribute element for next measure?
+											}
 										} else {
 											// append to the existing attribute
 											// element
