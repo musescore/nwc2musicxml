@@ -1039,14 +1039,18 @@ public class Nwc2MusicXML implements IConstants {
 		boolean tieStop = false;
 		boolean slurStart = false;
 		boolean slurStop = false;
+		boolean prevSlurIsGrace = false;
 		if (note.slur()) {
-			if (!staff.slurStarted) {
-				staff.slurStarted = true;
+			if (staff.slurStarted == null) {
+				staff.slurStarted = note;
 				slurStart = true;
+			} else {
+				slurStart = false;
 			}
-		} else {
-			if (staff.slurStarted) {
-				staff.slurStarted = false;
+		} else if(! note.grace()) { //slur stop on normal note only
+			if (staff.slurStarted != null) {
+				prevSlurIsGrace = staff.slurStarted.grace();
+				staff.slurStarted = null;
 				slurStop = true;
 			}
 		}
@@ -1286,8 +1290,8 @@ public class Nwc2MusicXML implements IConstants {
 		}
 
 		// lyrics
-		if (note.firstInChord && !note.rest && !note.isLyricNever() && !note.grace()) {
-			if ((tieStop || (note.slur() && !slurStart) || slurStop)
+		if ((note.firstInChord && !note.rest && !note.isLyricNever() && !note.grace()) || note.isLyricAlways()) {
+			if ((tieStop || (note.slur() && !slurStart) || (slurStop && !prevSlurIsGrace))
 					&& !note.isLyricAlways()) {
 				// nothing to do
 			} else {

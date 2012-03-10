@@ -15,7 +15,7 @@ public class Staff {
 	public Key currentKey;
 	public Set<Integer> tieList;
 	public int[] noteKeys;
-	public boolean slurStarted;
+	public Note slurStarted;
 
 	public Staff() {
 		this.measures = new ArrayList<Measure>();
@@ -25,7 +25,7 @@ public class Staff {
 		this.tieList = new HashSet<Integer>();
 		noteKeys = new int[7];
 		this.visible = true;
-
+		this.slurStarted = null;
 	}
 
 	public void addMeasure(Measure measure) {
