@@ -30,10 +30,10 @@ public class Note implements IElement {
 
 	public int dots() {
 		int res = 0;
-		if (dur.contains("Dotted"))
-			res = 1;
-		else if (dur.contains("DblDotted"))
+		if (dur.contains("DblDotted"))
 			res = 2;
+		else if (dur.contains("Dotted"))
+			res = 1;
 
 		return res;
 	}
