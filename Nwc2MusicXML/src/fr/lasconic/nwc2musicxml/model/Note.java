@@ -174,6 +174,8 @@ public class Note implements IElement {
 			res = 4 * IConstants.DIVISIONS_PER_QUARTER_NOTE;
 		else if (dur.contains("Half"))
 			res = 2 * IConstants.DIVISIONS_PER_QUARTER_NOTE;
+		else if (dur.contains("64th")) //before 4th
+			res = IConstants.DIVISIONS_PER_QUARTER_NOTE / 16;
 		else if (dur.contains("4th"))
 			res = IConstants.DIVISIONS_PER_QUARTER_NOTE;
 		else if (dur.contains("8th"))
@@ -182,8 +184,7 @@ public class Note implements IElement {
 			res = IConstants.DIVISIONS_PER_QUARTER_NOTE / 4;
 		else if (dur.contains("32nd"))
 			res = IConstants.DIVISIONS_PER_QUARTER_NOTE / 8;
-		else if (dur.contains("64th"))
-			res = IConstants.DIVISIONS_PER_QUARTER_NOTE / 16;
+
 
 		int dots = dots();
 		if (dots > 0) {
