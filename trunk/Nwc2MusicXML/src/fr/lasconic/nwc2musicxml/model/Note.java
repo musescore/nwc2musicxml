@@ -114,6 +114,8 @@ public class Note implements IElement {
 			res = "whole";
 		else if (dur.contains("Half"))
 			res = "half";
+		else if (dur.contains("64th")) // before 4th...
+			res = "64th";
 		else if (dur.contains("4th"))
 			res = "quarter";
 		else if (dur.contains("8th"))
@@ -122,9 +124,7 @@ public class Note implements IElement {
 			res = "16th";
 		else if (dur.contains("32nd"))
 			res = "32nd";
-		else if (dur.contains("64th"))
-			res = "64th";
-
+		
 		return res;
 	}
 
