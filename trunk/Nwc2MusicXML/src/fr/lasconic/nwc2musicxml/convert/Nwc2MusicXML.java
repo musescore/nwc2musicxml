@@ -1150,13 +1150,16 @@ public class Nwc2MusicXML implements IConstants {
 		Element voiceElement = doc.createElement(VOICE_TAG);
 		voiceElement.appendChild(doc.createTextNode(String.valueOf(voiceId)));
 		noteEl.appendChild(voiceElement);
+		
+		// no type element for full rest
+		if (fullRestDuration == -1 || !note.rest) {
+			Node type = doc.createElement(TYPE_TAG);
+			Node typeValue = doc.createTextNode(note.getType());
 
-		Node type = doc.createElement(TYPE_TAG);
-		Node typeValue = doc.createTextNode(note.getType());
-
-		if (typeValue != null) {
-			type.appendChild(typeValue);
-			noteEl.appendChild(type);
+			if (typeValue != null) {
+				type.appendChild(typeValue);
+				noteEl.appendChild(type);
+			}
 		}
 
 		if (note.dots() >= 1) {
