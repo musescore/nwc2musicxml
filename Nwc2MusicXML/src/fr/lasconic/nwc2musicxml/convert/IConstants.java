@@ -32,6 +32,13 @@ public interface IConstants {
 	public static final String DIRECTION_TAG = "direction";
 	public static final String DIRECTIONTYPE_TAG = "direction-type";
 	public static final String WORDS_TAG = "words";
+	public static final String SOUND_TAG = "sound";
+	
+	public static final String METRONOME_TAG = "metronome";
+	public static final String BEAT_UNIT_TAG = "beat-unit";
+	public static final String BEAT_UNIT_DOT_TAG = "beat-unit-dot";
+	public static final String PER_MINUTE_TAG = "per-minute";
+	
 	public static final String DYNAMICS_TAG = "dynamics";
 	
 	public static final String NOTE_TAG = "note";
@@ -88,6 +95,8 @@ public interface IConstants {
 	public static final String LOCATION_ATTRIBUTE = "location";
 	public static final String DIRECTION_ATTRIBUTE = "direction";
 	public static final String NEWSYSTEM_ATTRIBUTE = "new-system";
+	public static final String TEMPO_ATTRIBUTE = "tempo";
+	public static final String PLACEMENT_ATTRIBUTE = "placement";
 
 	public static final int DIVISIONS_PER_QUARTER_NOTE = 480;
 }
