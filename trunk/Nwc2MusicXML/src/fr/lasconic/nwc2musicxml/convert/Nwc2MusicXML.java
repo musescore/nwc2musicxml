@@ -11,12 +11,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.smartcardio.ATR;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -42,6 +44,7 @@ import fr.lasconic.nwc2musicxml.model.Note;
 import fr.lasconic.nwc2musicxml.model.Part;
 import fr.lasconic.nwc2musicxml.model.Score;
 import fr.lasconic.nwc2musicxml.model.Staff;
+import fr.lasconic.nwc2musicxml.model.Tempo;
 import fr.lasconic.nwc2musicxml.model.Text;
 import fr.lasconic.nwc2musicxml.model.TimeSig;
 import fr.lasconic.nwc2musicxml.model.Wedge;
@@ -277,6 +280,15 @@ public class Nwc2MusicXML implements IConstants {
 							if (sArray2[1].length() > 2)
 								metadata.copyright = sArray2[1].substring(1,
 										sArray2[1].length() - 1);
+						} else if (sA.startsWith("Copyright2")) {
+							sArray2 = sA.split(":");
+							if (sArray2[1].length() > 2) {
+								if(!metadata.copyright.isEmpty()) {
+									metadata.copyright += "\n";
+								}
+								metadata.copyright += sArray2[1].substring(1,
+										sArray2[1].length() - 1);
+							}
 						}
 					}
 					score.metadata = metadata;
@@ -532,7 +544,13 @@ public class Nwc2MusicXML implements IConstants {
 						}
 					}
 					measure.addElement(timeSig, voiceId);
-				} else if (type.compareTo("Text") == 0) {
+				} else if (type.compareTo("Tempo") == 0) {
+					init();
+					Tempo tempo = new Tempo();
+					tempo.parse(sArray);
+					measure.addElement(tempo, voiceId);
+				}
+				else if (type.compareTo("Text") == 0) {
 					init();
 					for (int i = 2; i < sArray.length; i++) {
 						sA = sArray[i];
@@ -894,7 +912,41 @@ public class Nwc2MusicXML implements IConstants {
 										forwardEl.appendChild(durationEl);
 										measureEl.appendChild(forwardEl);
 										backupVoice += forward.getDuration();
-									} else if (element instanceof Text) {
+									}else if (element instanceof Tempo) {
+										Tempo tempo = (Tempo) element;
+										Element directionEl = doc
+											.createElement(DIRECTION_TAG);
+										Element directionTypeEl = doc
+											.createElement(DIRECTIONTYPE_TAG);
+										directionEl.setAttribute(PLACEMENT_ATTRIBUTE, tempo.getPlacement());
+										if(tempo.hasText()) {
+											Element wordsEl = doc
+											.createElement(WORDS_TAG);
+											wordsEl.appendChild(doc
+											.createTextNode(tempo.getText()));
+											directionTypeEl.appendChild(wordsEl);
+										} else {
+											Element metronomeEl = doc.createElement(METRONOME_TAG);
+											Element beatUnitEl = doc.createElement(BEAT_UNIT_TAG);
+											beatUnitEl.appendChild(doc.createTextNode(tempo.getBaseLen()));
+											metronomeEl.appendChild(beatUnitEl);
+											if(tempo.isDotted()) {
+												Element beatUnitDotEl = doc.createElement(BEAT_UNIT_DOT_TAG);
+												metronomeEl.appendChild(beatUnitDotEl);
+											}
+											Element perMinuteEl = doc.createElement(PER_MINUTE_TAG);
+											perMinuteEl.appendChild(doc.createTextNode(Integer.toString(tempo.getTempo())));
+											metronomeEl.appendChild(perMinuteEl);
+											directionTypeEl.appendChild(metronomeEl);
+										}
+										directionEl
+										.appendChild(directionTypeEl);
+										Element soundEl = doc.createElement(SOUND_TAG);
+										soundEl.setAttribute(TEMPO_ATTRIBUTE, tempo.getAbsoluteTempo());
+										directionEl.appendChild(soundEl);
+										measureEl.appendChild(directionEl);
+									}
+									else if (element instanceof Text) {
 										Text text = (Text) element;
 										Element directionEl = doc
 												.createElement(DIRECTION_TAG);
@@ -1293,7 +1345,7 @@ public class Nwc2MusicXML implements IConstants {
 		}
 
 		// lyrics
-		if ((note.firstInChord && !note.rest && !note.isLyricNever() && !note.grace()) || note.isLyricAlways()) {
+		if ((note.firstInChord && (voiceId % 4 == 1) &&  !note.rest && !note.isLyricNever() && !note.grace()) || note.isLyricAlways()) {
 			if ((tieStop || (note.slur() && !slurStart) || (slurStop && !prevSlurIsGrace))
 					&& !note.isLyricAlways()) {
 				// nothing to do
