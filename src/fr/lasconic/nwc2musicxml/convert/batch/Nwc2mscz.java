@@ -1,17 +1,19 @@
 package fr.lasconic.nwc2musicxml.convert.batch;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import fr.lasconic.nwc2musicxml.convert.Nwc2MusicXML;
 
 public class Nwc2mscz {
 	
-	public static final String NWC2TXT = "nwc2txt";
-	public static final String MUSESCORE = "C:/Program Files/MuseScore/bin/mscore";
+	public static final String NWC2TXT = "C:/Program Files (x86)/Noteworthy Software/NoteWorthy Composer 2/nwc-conv.exe";
+	public static final String MUSESCORE = "C:/Program Files (x86)/MuseScore/bin/mscore";
 	
 	public static void main(String[] args) {
 		String path = ".";
@@ -73,7 +75,11 @@ public class Nwc2mscz {
 					File msczFile = new File(dir, name + ".mscz");
 					ProcessBuilder pbMscz = new ProcessBuilder(MUSESCORE, "\""+ musicXmlFile.getPath() +"\"", "-o" ,"\""+ msczFile.getAbsolutePath() +"\"");
 					Process pMscz = pbMscz.start();
-					int ret = pMscz.waitFor();
+					
+					BufferedReader reader =
+				        new BufferedReader(new InputStreamReader(pMscz.getInputStream()));
+				    while ((reader.readLine()) != null) {}
+				    int ret = pMscz.waitFor();
 					System.out.println(ret + " : " + msczFile.getAbsolutePath() );
 					//Thread.sleep(1000);
 				}
