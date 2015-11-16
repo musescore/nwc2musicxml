@@ -72,7 +72,7 @@ public class Nwc2MusicXML implements IConstants {
 		score = new Score();
 		try {
 
-			BufferedReader input = new BufferedReader(new InputStreamReader(in, "Cp1252"));
+			BufferedReader input = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 			try {
 				String line = null; // not declared within while loop
 
@@ -134,7 +134,7 @@ public class Nwc2MusicXML implements IConstants {
 		if (line.startsWith("#") || line.trim().length() == 0) {
 			return CONTINUE;
 		}
-		if (line.startsWith("!NoteWorthyComposer(2.0"))
+		if (line.startsWith("!NoteWorthyComposer(2"))
 			if (!first) {
 				first = true;
 			} else {

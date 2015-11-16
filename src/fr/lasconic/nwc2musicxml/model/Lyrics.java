@@ -23,7 +23,7 @@ public class Lyrics {
 	}
 
 	public void parse(String in) {
-		String[] sArray = in.split("\\\\r\\\\n");
+		String[] sArray = in.split("\\\\r\\\\n|\\\\n");
 		for (int i = 0; i < sArray.length; i++) {
 			String[] sArray2 = sArray[i].split("\\s");
 			for (int j = 0; j < sArray2.length; j++) {
