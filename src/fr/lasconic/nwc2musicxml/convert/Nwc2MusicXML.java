@@ -1514,7 +1514,15 @@ public class Nwc2MusicXML implements IConstants {
 	}
 
 	public static void main(String[] args) {
-		if (args.length == 2) {
+		if ((args.length == 1) && (args[0].equalsIgnoreCase("-ut"))) {
+			Nwc2MusicXML converter = new Nwc2MusicXML();
+			String title = converter.convert(System.in);
+			if (converter.write(System.out) == -1) {
+				System.err.println("Error while converting [" + title + "]");
+				} 
+			
+			System.exit(99);
+		} else if (args.length == 2) {
 			File in = new File(args[0]);
 			File out = new File(args[1]);
 			if (in.exists()) {
@@ -1542,6 +1550,7 @@ public class Nwc2MusicXML implements IConstants {
 		} else {
 			System.out
 					.println("usage : java -cp . nwc2musicxml.jar fr.lasconic.nwc2musicxml.Nwc2MusicXML file.nwctxt myfile.xml");
+			
 		}
 	}
 
