@@ -67,7 +67,7 @@ public class Lyrics {
 		Lyrics lyrics = new Lyrics();
 		lyrics.parse(test);
 		for (Lyric lyric : lyrics.lyrics) {
-			System.out.println(lyric);
+			System.err.println(lyric);
 		}
 
 	}

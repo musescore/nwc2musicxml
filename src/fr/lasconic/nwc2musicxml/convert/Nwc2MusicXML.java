@@ -163,7 +163,7 @@ public class Nwc2MusicXML implements IConstants {
 			String[] sArray = line.split("\\|");
 			if (sArray.length > 0) {
 				String type = sArray[1];
-				// System.out.println(type);
+				// System.err.println(type);
 				if (type.compareTo("AddStaff") == 0) { // Add Staff
 					// reset wedge (cresc/dimin)
 					if (Wedge.currentWedge != null) {
@@ -580,15 +580,15 @@ public class Nwc2MusicXML implements IConstants {
 
 			}
 			try {
-				// System.out.println( staff.measures.size() + ": " );
+				// System.err.println( staff.measures.size() + ": " );
 				for (IElement e : measure.voices.get(voiceId)) {
 					if (e instanceof Wedge) {
-						System.out.println(((Wedge) e).type);
+						System.err.println(((Wedge) e).type);
 					} else {
-						// System.out.println( "something" );
+						// System.err.println( "something" );
 					}
 				}
-				// System.out.println();
+				// System.err.println();
 			} catch (NullPointerException e) {
 
 			}
@@ -1530,25 +1530,25 @@ public class Nwc2MusicXML implements IConstants {
 					FileInputStream fileInputStream = new FileInputStream(in);
 					Nwc2MusicXML converter = new Nwc2MusicXML();
 					String title = converter.convert(fileInputStream);
-					System.out.println("Converting... title: [" + title + "]");
+					System.err.println("Converting... title: [" + title + "]");
 					if (converter.write(new FileOutputStream(out)) == -1) {
-						System.out.println("Error while converting [" + title
+						System.err.println("Error while converting [" + title
 								+ "]");
 					} else {
-						System.out.println("Success !  ["
+						System.err.println("Success !  ["
 								+ out.getAbsolutePath() + "]");
 					}
 				} catch (FileNotFoundException e) {
-					System.out.println("File " + in.getAbsolutePath()
+					System.err.println("File " + in.getAbsolutePath()
 							+ " not found");
 				}
 			} else {
-				System.out.println("File " + in.getAbsolutePath()
+				System.err.println("File " + in.getAbsolutePath()
 						+ " not found");
 			}
 
 		} else {
-			System.out
+			System.err
 					.println("usage : java -cp . nwc2musicxml.jar fr.lasconic.nwc2musicxml.Nwc2MusicXML file.nwctxt myfile.xml");
 			
 		}

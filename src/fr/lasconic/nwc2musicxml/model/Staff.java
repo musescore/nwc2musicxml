@@ -63,16 +63,16 @@ public class Staff {
 		staff.tieList.add(16);
 
 		for (int i = 0; i < staff.noteKeys.length; i++) {
-			System.out.print(staff.noteKeys[i] + " ");
+			System.err.print(staff.noteKeys[i] + " ");
 		}
-		System.out.println();
+		System.err.println();
 		staff.transformKeyListForTie();
 		for (int i = 0; i < staff.noteKeys.length; i++) {
-			System.out.print(staff.noteKeys[i] + " ");
+			System.err.print(staff.noteKeys[i] + " ");
 		}
 
-		System.out.println();
-		System.out.println();
+		System.err.println();
+		System.err.println();
 
 		int[] array2 = { 1, 1, 1, 0, 0, 0, 0 };
 		staff.noteKeys = array2;
@@ -80,16 +80,16 @@ public class Staff {
 		staff.tieList.add(18);
 
 		for (int i = 0; i < staff.noteKeys.length; i++) {
-			System.out.print(staff.noteKeys[i] + " ");
+			System.err.print(staff.noteKeys[i] + " ");
 		}
-		System.out.println();
+		System.err.println();
 		staff.transformKeyListForTie();
 		for (int i = 0; i < staff.noteKeys.length; i++) {
-			System.out.print(staff.noteKeys[i] + " ");
+			System.err.print(staff.noteKeys[i] + " ");
 		}
 
-		System.out.println();
-		System.out.println();
+		System.err.println();
+		System.err.println();
 
 		int[] array3 = { 1, 0, -1, 0, 1, 0, 1 };
 		staff.noteKeys = array3;
@@ -97,12 +97,12 @@ public class Staff {
 		staff.tieList.add(18);
 
 		for (int i = 0; i < staff.noteKeys.length; i++) {
-			System.out.print(staff.noteKeys[i] + " ");
+			System.err.print(staff.noteKeys[i] + " ");
 		}
-		System.out.println();
+		System.err.println();
 		staff.transformKeyListForTie();
 		for (int i = 0; i < staff.noteKeys.length; i++) {
-			System.out.print(staff.noteKeys[i] + " ");
+			System.err.print(staff.noteKeys[i] + " ");
 		}
 
 	}

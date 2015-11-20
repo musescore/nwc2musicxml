@@ -10,7 +10,7 @@ public class Tempo implements IElement {
 	private int tempo;
 	private String base;
 	private String text;
-	private int pos;
+	private float pos;
 
 	public Tempo() {
 		tempo = 120;
@@ -46,7 +46,7 @@ public class Tempo implements IElement {
 				text = sArray2[1].substring(1, sArray2[1].length() - 1);
 			} else if (sA.startsWith("Pos")) {
 				sArray2 = sA.split(":");
-				pos = Integer.parseInt(sArray2[1]);
+				pos = Float.parseFloat(sArray2[1]);
 			}
 		}
 	}

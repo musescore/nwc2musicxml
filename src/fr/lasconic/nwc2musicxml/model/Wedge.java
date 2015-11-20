@@ -24,24 +24,24 @@ public class Wedge implements IElement{
 				if( currentWedge != null && currentWedge.equals( "Crescendo" ) ) {
 					measure.addElement( new Wedge( "Stop" ), voiceId );
 					currentWedge = null;
-//					System.out.println( "Stop!" );
+//					System.err.println( "Stop!" );
 				}	
 				if( currentWedge == null ) {
 					measure.addElement( new Wedge( "Diminuendo" ), voiceId );
 					currentWedge = "Diminuendo";
-//					System.out.println( "Dim!" );
+//					System.err.println( "Dim!" );
 				}
 				noWedge = false;
 			} else if( s.contains( "Crescendo" ) ) {
 				if( currentWedge != null && currentWedge.equals( "Diminuendo" ) ) {
 					measure.addElement( new Wedge( "Stop" ), voiceId );
 					currentWedge = null;
-//					System.out.println( "Stop!" );
+//					System.err.println( "Stop!" );
 				}
 				if( currentWedge == null ) {
 					measure.addElement( new Wedge( "Crescendo" ), voiceId );
 					currentWedge = "Crescendo";
-//					System.out.println( "Cresc!" );
+//					System.err.println( "Cresc!" );
 				}
 				noWedge = false;
 			} 
@@ -49,7 +49,7 @@ public class Wedge implements IElement{
 		if( noWedge && currentWedge != null ) {
 			measure.addElement( new Wedge( "Stop" ), voiceId );
 			currentWedge = null;
-//			System.out.println( "Stop!" );
+//			System.err.println( "Stop!" );
 		}
 	}
 	

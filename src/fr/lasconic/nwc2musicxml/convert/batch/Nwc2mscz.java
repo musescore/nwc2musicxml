@@ -42,7 +42,7 @@ public class Nwc2mscz {
 			}else if (nwcFile.isDirectory()){
 				convertDir(nwcFile);
 			}else{	
-				System.out.println("Error");
+				System.err.println("Error");
 			}
 		}
 	}
@@ -64,12 +64,12 @@ public class Nwc2mscz {
 				FileInputStream fileInputStream = new FileInputStream(nwcTxtFile);
 				Nwc2MusicXML converter = new Nwc2MusicXML();
 				String title = converter.convert(fileInputStream);
-				System.out.println("Converting... title: [" + title + "]");
+				System.err.println("Converting... title: [" + title + "]");
 				if (converter.write(new FileOutputStream(musicXmlFile)) == -1) {
-					System.out.println("Error while converting [" + title
+					System.err.println("Error while converting [" + title
 							+ "]");
 				} else {
-					System.out.println("Success !  ["
+					System.err.println("Success !  ["
 							+ musicXmlFile.getAbsolutePath() + "]");
 					//run MuseScore to do MusicXML to mscz
 					File msczFile = new File(dir, name + ".mscz");
@@ -80,7 +80,7 @@ public class Nwc2mscz {
 				        new BufferedReader(new InputStreamReader(pMscz.getInputStream()));
 				    while ((reader.readLine()) != null) {}
 				    int ret = pMscz.waitFor();
-					System.out.println(ret + " : " + msczFile.getAbsolutePath() );
+					System.err.println(ret + " : " + msczFile.getAbsolutePath() );
 					//Thread.sleep(1000);
 				}
 			}

@@ -52,12 +52,12 @@ public class Nwc2Txt {
 		byte[] fb = new byte[5];
 		bf.get(fb);
 		String format = new String(fb);
-		System.out.println(format);
-		System.out.println();
+		System.err.println(format);
+		System.err.println();
 
 		if ("[NWZ]".compareTo(format) == 0) {
-			System.out.println("Compressed NWC detected!");
-			System.out
+			System.err.println("Compressed NWC detected!");
+			System.err
 					.println("Dumping to uncompressed NWC format and attemping conversion soon...");
 			bf.get();
 
@@ -75,10 +75,10 @@ public class Nwc2Txt {
 			while (!decompressor.finished()) {
 				try {
 					int count = decompressor.inflate(buf);
-					// System.out.println(new String(buf));
+					// System.err.println(new String(buf));
 					bos.write(buf, 0, count);
 				} catch (DataFormatException e) {
-					System.out.println("DATA FORMAT EXCEPTION");
+					System.err.println("DATA FORMAT EXCEPTION");
 					return;
 				}
 			}
@@ -100,7 +100,7 @@ public class Nwc2Txt {
 			if(s.length() == 1){
 				s = "0"+s;
 			}
-			//System.out.print(s);
+			//System.err.print(s);
 			out.write(s);
 			if(nwcData[i] == 0){
 				out.write("\n");	
@@ -110,32 +110,32 @@ public class Nwc2Txt {
 		
 		ByteBuffer bb = ByteBuffer.wrap(nwcData);
 		
-		System.out.println(getString(bb,23));
-		System.out.println(getString(bb,23));
+		System.err.println(getString(bb,23));
+		System.err.println(getString(bb,23));
 		byte[] versionBytes = new byte[5];
 		bb.get(versionBytes);
 		String version = versionBytes[1] +"."+ versionBytes[1];
-		System.out.println(version);
-		System.out.println(getString(bb,19));
-		System.out.println(bb.get()); //?
-		System.out.println(bb.get()); //?
-		System.out.println("Title : " + getString(bb)); //Title
-		System.out.println("Author : " + getString(bb)); //Author
-		System.out.println("Lyricist : " + getString(bb)); //Lyricist
-		System.out.println("Copyright1 : " + getString(bb)); //Copyright1
-		System.out.println("Copyright2 : " + getString(bb)); //Copyright2
-		System.out.println("Comments : " + getString(bb)); //Comments
+		System.err.println(version);
+		System.err.println(getString(bb,19));
+		System.err.println(bb.get()); //?
+		System.err.println(bb.get()); //?
+		System.err.println("Title : " + getString(bb)); //Title
+		System.err.println("Author : " + getString(bb)); //Author
+		System.err.println("Lyricist : " + getString(bb)); //Lyricist
+		System.err.println("Copyright1 : " + getString(bb)); //Copyright1
+		System.err.println("Copyright2 : " + getString(bb)); //Copyright2
+		System.err.println("Comments : " + getString(bb)); //Comments
 		
-		System.out.println(getString(bb)); //Comments
-		System.out.println(getString(bb)); //Comments
-		System.out.println(getString(bb)); //Comments
-		System.out.println(getString(bb)); //Comments
-		System.out.println(getString(bb)); //Comments
-		System.out.println(getString(bb)); //Comments
-		System.out.println(getString(bb)); //Comments
-		System.out.println(getString(bb)); //Comments
-		System.out.println(getString(bb)); //Comments
-		System.out.println(getString(bb)); //Comments
+		System.err.println(getString(bb)); //Comments
+		System.err.println(getString(bb)); //Comments
+		System.err.println(getString(bb)); //Comments
+		System.err.println(getString(bb)); //Comments
+		System.err.println(getString(bb)); //Comments
+		System.err.println(getString(bb)); //Comments
+		System.err.println(getString(bb)); //Comments
+		System.err.println(getString(bb)); //Comments
+		System.err.println(getString(bb)); //Comments
+		System.err.println(getString(bb)); //Comments
 		
 	}
 	
