@@ -11,20 +11,20 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.smartcardio.ATR;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -1521,6 +1521,32 @@ public class Nwc2MusicXML implements IConstants {
 				System.err.println("Error while converting [" + title + "]");
 				} 
 			
+			System.exit(99);
+		} else if ((args.length == 1) && (args[0].equalsIgnoreCase("-utsave"))) {
+			Nwc2MusicXML converter = new Nwc2MusicXML();
+			String title = converter.convert(System.in);
+			JFileChooser fc = new JFileChooser();
+			fc.setFileFilter(new FileNameExtensionFilter("MusicXML", "xml"));
+			fc.setSelectedFile(new File(title+".xml"));
+			int returnVal = fc.showSaveDialog(null);
+		    
+		    if (returnVal != JFileChooser.APPROVE_OPTION) {
+		    	System.out.println("Aborted");
+		    	System.exit(99);
+		    }
+		    
+			File out = fc.getSelectedFile();
+			
+			try {
+				if (converter.write(new FileOutputStream(out)) == -1) {
+					System.out.println("Error while converting [" + title + "]");
+				} else {
+					System.out.println("Success\n\n-> " + out.getAbsolutePath());
+				}
+			} catch (FileNotFoundException e) {
+				System.out.println("Output file [" + out.getAbsolutePath() + "] exception");
+			}
+    		
 			System.exit(99);
 		} else if (args.length == 2) {
 			File in = new File(args[0]);
