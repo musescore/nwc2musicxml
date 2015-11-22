@@ -107,6 +107,20 @@ public class Note implements IElement {
 			res = true;
 		return res;
 	}
+	
+	public boolean isBeamed() {
+		boolean res = false;
+		if (opts != null && opts.contains("Beam"))
+			res = true;
+		return res;
+	}
+
+	public boolean isBeamEnd() {
+		boolean res = false;
+		if (opts != null && opts.contains("Beam=End"))
+			res = true;
+		return res;
+	}
 
 	public String getType() {
 		String res = null;
@@ -165,6 +179,23 @@ public class Note implements IElement {
 		if (dur.contains("Grace")) {
 			res = true;
 		}
+		return res;
+	}
+
+	public int getStemFlagCount() {
+		int res = 0;
+		
+		if (rest)
+			;
+		else if (dur.contains("8th"))
+			res = 1;
+		else if (dur.contains("16th"))
+			res = 2;
+		else if (dur.contains("32nd"))
+			res = 3;
+		else if (dur.contains("64th")) //before 4th
+			res = 4;
+
 		return res;
 	}
 

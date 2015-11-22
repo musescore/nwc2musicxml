@@ -1274,6 +1274,37 @@ public class Nwc2MusicXML implements IConstants {
 		staffElement.appendChild(doc.createTextNode(new Integer(staffId)
 				.toString()));
 		noteEl.appendChild(staffElement);
+
+		if (note.isBeamed() && note.firstInChord) {
+			// Ideally, this section should look forward to the next note in the
+			// beam, and do hook segments as needed (this is not currently done)
+			int runFlags = staff.currentBeamCount;
+			int newFlags = note.getStemFlagCount();
+			int maxFlags = Math.max(runFlags,newFlags);
+			boolean endBeam = note.isBeamEnd();
+			
+			for (int flag=1;flag<=maxFlags;flag++) {
+				String beamSeg = "end";
+				if (endBeam) {
+					if (flag > runFlags) beamSeg = "backward hook";
+				} else if (flag > newFlags) {
+					beamSeg = "end";
+				} else if (flag > runFlags) {
+					beamSeg = "begin";
+				} else {
+					beamSeg = "continue";
+				}
+				
+				Element beamEl = doc.createElement(BEAM_TAG);
+				beamEl.setAttribute(NUMBER_ATTRIBUTE, new Integer(flag).toString());
+				beamEl.appendChild(doc.createTextNode(beamSeg));
+				noteEl.appendChild(beamEl);				
+			}
+			
+			staff.currentBeamCount = endBeam ? 0 : newFlags;
+		}
+
+		
 		Element notationsEl = null;
 		if (note.startTie || tieStop) {
 			notationsEl = doc.createElement(NOTATIONS_TAG);

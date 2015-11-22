@@ -16,6 +16,7 @@ public class Staff {
 	public Set<Integer> tieList;
 	public int[] noteKeys;
 	public Note slurStarted;
+	public int currentBeamCount;
 
 	public Staff() {
 		this.measures = new ArrayList<Measure>();
@@ -26,6 +27,7 @@ public class Staff {
 		noteKeys = new int[7];
 		this.visible = true;
 		this.slurStarted = null;
+		this.currentBeamCount = 0;
 	}
 
 	public void addMeasure(Measure measure) {
