@@ -245,7 +245,7 @@ public class Note implements IElement {
 		} else if (type.contains("alto")) {
 			n = 0;
 		} else if (type.contains("tenor")) {
-			n = 2;
+			n = -2;
 		}
 		n += rPos;// number extracted from pos
 		char note = (char) ('A' + ((n + 2 + 70) % 7));
@@ -267,7 +267,7 @@ public class Note implements IElement {
 		} else if (type.contains("alto")) {
 			n = 0;
 		} else if (type.contains("tenor")) {
-			n = 2;
+			n = -2;
 		}
 		n += rPos;// number extracted from pos
 		int octave = (70 + n) / 7 - 6;
