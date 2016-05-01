@@ -107,6 +107,20 @@ public class Note implements IElement {
 			res = true;
 		return res;
 	}
+	
+	public boolean isBeamed() {
+		boolean res = false;
+		if (opts != null && opts.contains("Beam"))
+			res = true;
+		return res;
+	}
+
+	public boolean isBeamEnd() {
+		boolean res = false;
+		if (opts != null && opts.contains("Beam=End"))
+			res = true;
+		return res;
+	}
 
 	public String getType() {
 		String res = null;
@@ -168,6 +182,23 @@ public class Note implements IElement {
 		return res;
 	}
 
+	public int getStemFlagCount() {
+		int res = 0;
+		
+		if (rest)
+			;
+		else if (dur.contains("8th"))
+			res = 1;
+		else if (dur.contains("16th"))
+			res = 2;
+		else if (dur.contains("32nd"))
+			res = 3;
+		else if (dur.contains("64th")) //before 4th
+			res = 4;
+
+		return res;
+	}
+
 	public int getDuration() {
 		int res = IConstants.DIVISIONS_PER_QUARTER_NOTE;
 		if (dur.contains("Whole"))
@@ -214,7 +245,7 @@ public class Note implements IElement {
 		} else if (type.contains("alto")) {
 			n = 0;
 		} else if (type.contains("tenor")) {
-			n = 2;
+			n = -2;
 		}
 		n += rPos;// number extracted from pos
 		char note = (char) ('A' + ((n + 2 + 70) % 7));
@@ -236,7 +267,7 @@ public class Note implements IElement {
 		} else if (type.contains("alto")) {
 			n = 0;
 		} else if (type.contains("tenor")) {
-			n = 2;
+			n = -2;
 		}
 		n += rPos;// number extracted from pos
 		int octave = (70 + n) / 7 - 6;

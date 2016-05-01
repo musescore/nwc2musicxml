@@ -130,32 +130,32 @@ public class Key implements IElement{
 	public static void main(String[] args) {
 		Key key = new Key();
 		key.parse("Bb,Eb");
-		System.out.println(key.getFifth());
+		System.err.println(key.getFifth());
 		// --- -2 ---/
 
 		key = new Key();
 		key.parse("Bb,Db");
-		System.out.println(key.getFifth());
+		System.err.println(key.getFifth());
 		// --- 0 ---/
 
 		key = new Key();
 		key.parse("F#,C#");
-		System.out.println(key.getFifth());
+		System.err.println(key.getFifth());
 		// --- 2 ---/
 
 		key = new Key();
 		key.parse("F#,D#");
-		System.out.println(key.getFifth());
+		System.err.println(key.getFifth());
 		// --- 0 ---/
 
 		key = new Key();
 		key.parse("Bb,Eb,Ab,Db,Gb,Cb,Fb");
-		System.out.println(key.getFifth());
+		System.err.println(key.getFifth());
 		// --- -7 ---/
 
 		key = new Key();
 		key.parse("F#,C#,G#,D#,A#,E#,B#");
-		System.out.println(key.getFifth());
+		System.err.println(key.getFifth());
 		// --- 7 ---/
 
 	}

@@ -11,20 +11,20 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.smartcardio.ATR;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -72,7 +72,7 @@ public class Nwc2MusicXML implements IConstants {
 		score = new Score();
 		try {
 
-			BufferedReader input = new BufferedReader(new InputStreamReader(in, "Cp1252"));
+			BufferedReader input = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 			try {
 				String line = null; // not declared within while loop
 
@@ -134,7 +134,7 @@ public class Nwc2MusicXML implements IConstants {
 		if (line.startsWith("#") || line.trim().length() == 0) {
 			return CONTINUE;
 		}
-		if (line.startsWith("!NoteWorthyComposer(2.0"))
+		if (line.startsWith("!NoteWorthyComposer(2"))
 			if (!first) {
 				first = true;
 			} else {
@@ -163,7 +163,7 @@ public class Nwc2MusicXML implements IConstants {
 			String[] sArray = line.split("\\|");
 			if (sArray.length > 0) {
 				String type = sArray[1];
-				// System.out.println(type);
+				// System.err.println(type);
 				if (type.compareTo("AddStaff") == 0) { // Add Staff
 					// reset wedge (cresc/dimin)
 					if (Wedge.currentWedge != null) {
@@ -580,15 +580,15 @@ public class Nwc2MusicXML implements IConstants {
 
 			}
 			try {
-				// System.out.println( staff.measures.size() + ": " );
+				// System.err.println( staff.measures.size() + ": " );
 				for (IElement e : measure.voices.get(voiceId)) {
 					if (e instanceof Wedge) {
-						System.out.println(((Wedge) e).type);
+						System.err.println(((Wedge) e).type);
 					} else {
-						// System.out.println( "something" );
+						// System.err.println( "something" );
 					}
 				}
-				// System.out.println();
+				// System.err.println();
 			} catch (NullPointerException e) {
 
 			}
@@ -1274,6 +1274,37 @@ public class Nwc2MusicXML implements IConstants {
 		staffElement.appendChild(doc.createTextNode(new Integer(staffId)
 				.toString()));
 		noteEl.appendChild(staffElement);
+
+		if (note.isBeamed() && note.firstInChord) {
+			// Ideally, this section should look forward to the next note in the
+			// beam, and do hook segments as needed (this is not currently done)
+			int runFlags = staff.currentBeamCount;
+			int newFlags = note.getStemFlagCount();
+			int maxFlags = Math.max(runFlags,newFlags);
+			boolean endBeam = note.isBeamEnd();
+			
+			for (int flag=1;flag<=maxFlags;flag++) {
+				String beamSeg = "end";
+				if (endBeam) {
+					if (flag > runFlags) beamSeg = "backward hook";
+				} else if (flag > newFlags) {
+					beamSeg = "end";
+				} else if (flag > runFlags) {
+					beamSeg = "begin";
+				} else {
+					beamSeg = "continue";
+				}
+				
+				Element beamEl = doc.createElement(BEAM_TAG);
+				beamEl.setAttribute(NUMBER_ATTRIBUTE, new Integer(flag).toString());
+				beamEl.appendChild(doc.createTextNode(beamSeg));
+				noteEl.appendChild(beamEl);				
+			}
+			
+			staff.currentBeamCount = endBeam ? 0 : newFlags;
+		}
+
+		
 		Element notationsEl = null;
 		if (note.startTie || tieStop) {
 			notationsEl = doc.createElement(NOTATIONS_TAG);
@@ -1514,7 +1545,41 @@ public class Nwc2MusicXML implements IConstants {
 	}
 
 	public static void main(String[] args) {
-		if (args.length == 2) {
+		if ((args.length == 1) && (args[0].equalsIgnoreCase("-ut"))) {
+			Nwc2MusicXML converter = new Nwc2MusicXML();
+			String title = converter.convert(System.in);
+			if (converter.write(System.out) == -1) {
+				System.err.println("Error while converting [" + title + "]");
+				} 
+			
+			System.exit(99);
+		} else if ((args.length == 1) && (args[0].equalsIgnoreCase("-utsave"))) {
+			Nwc2MusicXML converter = new Nwc2MusicXML();
+			String title = converter.convert(System.in);
+			JFileChooser fc = new JFileChooser();
+			fc.setFileFilter(new FileNameExtensionFilter("MusicXML", "xml"));
+			fc.setSelectedFile(new File(title+".xml"));
+			int returnVal = fc.showSaveDialog(null);
+		    
+		    if (returnVal != JFileChooser.APPROVE_OPTION) {
+		    	System.out.println("Aborted");
+		    	System.exit(99);
+		    }
+		    
+			File out = fc.getSelectedFile();
+			
+			try {
+				if (converter.write(new FileOutputStream(out)) == -1) {
+					System.out.println("Error while converting [" + title + "]");
+				} else {
+					System.out.println("Success\n\n-> " + out.getAbsolutePath());
+				}
+			} catch (FileNotFoundException e) {
+				System.out.println("Output file [" + out.getAbsolutePath() + "] exception");
+			}
+    		
+			System.exit(99);
+		} else if (args.length == 2) {
 			File in = new File(args[0]);
 			File out = new File(args[1]);
 			if (in.exists()) {
@@ -1522,26 +1587,27 @@ public class Nwc2MusicXML implements IConstants {
 					FileInputStream fileInputStream = new FileInputStream(in);
 					Nwc2MusicXML converter = new Nwc2MusicXML();
 					String title = converter.convert(fileInputStream);
-					System.out.println("Converting... title: [" + title + "]");
+					System.err.println("Converting... title: [" + title + "]");
 					if (converter.write(new FileOutputStream(out)) == -1) {
-						System.out.println("Error while converting [" + title
+						System.err.println("Error while converting [" + title
 								+ "]");
 					} else {
-						System.out.println("Success !  ["
+						System.err.println("Success !  ["
 								+ out.getAbsolutePath() + "]");
 					}
 				} catch (FileNotFoundException e) {
-					System.out.println("File " + in.getAbsolutePath()
+					System.err.println("File " + in.getAbsolutePath()
 							+ " not found");
 				}
 			} else {
-				System.out.println("File " + in.getAbsolutePath()
+				System.err.println("File " + in.getAbsolutePath()
 						+ " not found");
 			}
 
 		} else {
-			System.out
+			System.err
 					.println("usage : java -cp . nwc2musicxml.jar fr.lasconic.nwc2musicxml.Nwc2MusicXML file.nwctxt myfile.xml");
+			
 		}
 	}
 
