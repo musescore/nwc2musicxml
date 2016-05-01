@@ -485,8 +485,21 @@ public class Nwc2MusicXML implements IConstants {
 				} else if (type.compareTo("Bar") == 0) {
 					Measure newMeasure;
 					if (!init()) {
-						newMeasure = new Measure();
-						staff.addMeasure(newMeasure);
+						if (staff.measures.size() == 1) {
+							// maybe it's first barline
+							Measure m = staff.measures.get(0);
+							if (m.notesCount > 0) {
+								// we already have some notes, let's create a new measure
+								newMeasure = new Measure();
+								staff.addMeasure(newMeasure);
+							} else {
+								// could be a left barline, let's use the same measure
+								newMeasure = measure;
+							}
+						} else {
+							newMeasure = new Measure();
+							staff.addMeasure(newMeasure);
+						}
 					} else {
 						newMeasure = measure;
 					}
