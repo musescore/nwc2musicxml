@@ -1,6 +1,6 @@
 The primary goal of this project is to provide a library to convert NWC scores to MusicXML. Then, Noteworthy users will be able to share their scores with others scorewriters, especially free ones such as [MuseScore](https://musescore.org). For the time being, the library support only NWCtxt and you need a copy of NoteWhorthy composer to save a NWC file to NWCtxt.
 
-The converter is also available online as a webservice on Google App Engine at http://nwc2musicxml.appspot.com/
+The converter is also available online as a webservice on Google App Engine at https://nwc2musicxml.appspot.com/
 
 If you find the software useful you can [donate](https://paypal.me/lasconic).
 
