@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.zip.InflaterInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -18,15 +17,16 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.zip.InflaterInputStream;
 
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -52,10 +52,7 @@ import fr.lasconic.nwc2musicxml.model.TimeSig;
 import fr.lasconic.nwc2musicxml.model.Wedge;
 
 public class Nwc2MusicXML implements IConstants {
-	private static final int ERROR = -1;
-	private static final int CONTINUE = 0;
-	private static final int END_OF_FILE = 1;
-
+	
 	private boolean first;
 
 	private Score score;
@@ -69,18 +66,18 @@ public class Nwc2MusicXML implements IConstants {
 		currentStaffId = 0;
 	}
 
-	public String convert(InputStream in) {
-		int res = CONTINUE;
+	public ConversionResult convert(InputStream in) {
+		int res = ConversionResult.CONTINUE;
 		score = new Score();
+		ConversionResult result = new ConversionResult();
 		try {
-
 			BufferedReader input = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 			try {
 				String line = null; // not declared within while loop
 
 				while ((line = input.readLine()) != null) {
 					res = processLine(line);
-					if (res == ERROR || res == END_OF_FILE)
+					if (res != ConversionResult.CONTINUE)
 						break;
 				}
 			} finally {
@@ -89,16 +86,15 @@ public class Nwc2MusicXML implements IConstants {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		if (res != ERROR) {
+		result.setErrorCode(res);
+		if (res == ConversionResult.END_OF_FILE) {
 			String title = "test";
 			if (score.metadata != null && score.metadata.title != null) {
 				title = score.metadata.title;
 			}
-			return title;
-		} else {
-			return null;
+			result.setTitle(title);
 		}
+		return result;
 	}
 
 	public int write(OutputStream out) {
@@ -134,12 +130,16 @@ public class Nwc2MusicXML implements IConstants {
 
 	private int processLine(String line) {
 		if (line.startsWith("#") || line.trim().length() == 0) {
-			return CONTINUE;
+			return ConversionResult.CONTINUE;
+		}
+		
+		if (!first && line.startsWith("[NoteWorthy ArtWare]") && !line.endsWith("!NoteWorthyComposer(2.75)")) {
+			return ConversionResult.ERROR_OLD_VERSION;
 		}
 		
 		if (!first && line.contains("!NoteWorthyComposer(2")) {
 			first = true;
-			return CONTINUE;
+			return ConversionResult.CONTINUE;
 		}
 			
 		String[] sArray2;
@@ -157,7 +157,7 @@ public class Nwc2MusicXML implements IConstants {
 			if (measure != null && measure.isEmpty()) {
 				staff.measures.remove(measure);
 			}
-			return END_OF_FILE;
+			return ConversionResult.END_OF_FILE;
 		}
 
 		if (line.startsWith("|")) {
@@ -607,7 +607,7 @@ public class Nwc2MusicXML implements IConstants {
 
 			}
 		}
-		return CONTINUE;
+		return ConversionResult.CONTINUE;
 	}
 
 	/**
@@ -1561,7 +1561,8 @@ public class Nwc2MusicXML implements IConstants {
 	public static void main(String[] args) {
 		if ((args.length == 1) && (args[0].equalsIgnoreCase("-ut"))) {
 			Nwc2MusicXML converter = new Nwc2MusicXML();
-			String title = converter.convert(System.in);
+			ConversionResult result = converter.convert(System.in);
+			String title = result.getTitle();
 			if (converter.write(System.out) == -1) {
 				System.err.println("Error while converting [" + title + "]");
 				} 
@@ -1569,7 +1570,8 @@ public class Nwc2MusicXML implements IConstants {
 			System.exit(99);
 		} else if ((args.length == 1) && (args[0].equalsIgnoreCase("-utsave"))) {
 			Nwc2MusicXML converter = new Nwc2MusicXML();
-			String title = converter.convert(System.in);
+			ConversionResult result = converter.convert(System.in);
+			String title = result.getTitle();
 			JFileChooser fc = new JFileChooser();
 			fc.setFileFilter(new FileNameExtensionFilter("MusicXML", "xml"));
 			fc.setSelectedFile(new File(title+".xml"));
@@ -1605,21 +1607,32 @@ public class Nwc2MusicXML implements IConstants {
 					// that contains deflated nwctxt 
 					byte[] refNWZ = {'[','N','W','Z',']',0};
 					byte[] hdrNWZ = new byte[6];
-					
-					if ((inStream.read(hdrNWZ) == 6) && Arrays.equals(hdrNWZ,refNWZ))
+					boolean compressed = false;
+					if ((inStream.read(hdrNWZ) == 6) && Arrays.equals(hdrNWZ,refNWZ)) {
 						inStream = new InflaterInputStream(finStream);
+						compressed = true;
+					}
 					else 
 						finStream.getChannel().position(0);
 					
 					Nwc2MusicXML converter = new Nwc2MusicXML();
-					String title = converter.convert(inStream);
+					ConversionResult result = converter.convert(inStream);
+					String title = result.getTitle();
 					System.err.println("Converting... title: [" + title + "]");
-					if (converter.write(new FileOutputStream(out)) == -1) {
-						System.err.println("Error while converting [" + title
-								+ "]");
+					if (!result.isError()) {
+						if (converter.write(new FileOutputStream(out)) == -1) {
+							System.err.println("Error while converting [" + title
+									+ "]");
+						} else {
+							System.err.println("Success !  ["
+									+ out.getAbsolutePath() + "]");
+						}
 					} else {
-						System.err.println("Success !  ["
-								+ out.getAbsolutePath() + "]");
+						if (result.getErrorCode() == ConversionResult.ERROR_OLD_VERSION && compressed) {
+							System.err.println("Error: NWC file version is < 2.75. The converter only supports NWC 2.75+ files");
+						} else {
+							System.err.println("Conversion error");
+						}
 					}
 				} catch (FileNotFoundException e) {
 					System.err.println("File " + in.getAbsolutePath()

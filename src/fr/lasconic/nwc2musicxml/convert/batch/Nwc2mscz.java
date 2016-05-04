@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import fr.lasconic.nwc2musicxml.convert.ConversionResult;
 import fr.lasconic.nwc2musicxml.convert.Nwc2MusicXML;
 
 public class Nwc2mscz {
@@ -63,7 +64,8 @@ public class Nwc2mscz {
 				File musicXmlFile = new File(dir, name+".xml");
 				FileInputStream fileInputStream = new FileInputStream(nwcTxtFile);
 				Nwc2MusicXML converter = new Nwc2MusicXML();
-				String title = converter.convert(fileInputStream);
+				ConversionResult result = converter.convert(fileInputStream);
+				String title = result.getTitle();
 				System.err.println("Converting... title: [" + title + "]");
 				if (converter.write(new FileOutputStream(musicXmlFile)) == -1) {
 					System.err.println("Error while converting [" + title
