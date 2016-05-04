@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.zip.InflaterInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
@@ -134,13 +136,12 @@ public class Nwc2MusicXML implements IConstants {
 		if (line.startsWith("#") || line.trim().length() == 0) {
 			return CONTINUE;
 		}
-		if (line.startsWith("!NoteWorthyComposer(2"))
-			if (!first) {
-				first = true;
-			} else {
-				return ERROR;
-			}
-
+		
+		if (!first && line.contains("!NoteWorthyComposer(2")) {
+			first = true;
+			return CONTINUE;
+		}
+			
 		String[] sArray2;
 		String sA;
 		int voiceId = (currentStaffId - 1) * 4 + 1;
@@ -1597,9 +1598,21 @@ public class Nwc2MusicXML implements IConstants {
 			File out = new File(args[1]);
 			if (in.exists()) {
 				try {
-					FileInputStream fileInputStream = new FileInputStream(in);
+					FileInputStream finStream = new FileInputStream(in);
+					InputStream inStream = finStream;
+					
+					// check for a [NWZ] header, which indicates that this is a 2.75 NWC file
+					// that contains deflated nwctxt 
+					byte[] refNWZ = {'[','N','W','Z',']',0};
+					byte[] hdrNWZ = new byte[6];
+					
+					if ((inStream.read(hdrNWZ) == 6) && Arrays.equals(hdrNWZ,refNWZ))
+						inStream = new InflaterInputStream(finStream);
+					else 
+						finStream.getChannel().position(0);
+					
 					Nwc2MusicXML converter = new Nwc2MusicXML();
-					String title = converter.convert(fileInputStream);
+					String title = converter.convert(inStream);
 					System.err.println("Converting... title: [" + title + "]");
 					if (converter.write(new FileOutputStream(out)) == -1) {
 						System.err.println("Error while converting [" + title
@@ -1611,6 +1624,8 @@ public class Nwc2MusicXML implements IConstants {
 				} catch (FileNotFoundException e) {
 					System.err.println("File " + in.getAbsolutePath()
 							+ " not found");
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
 				}
 			} else {
 				System.err.println("File " + in.getAbsolutePath()
