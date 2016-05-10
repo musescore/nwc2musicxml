@@ -1462,6 +1462,26 @@ public class IOUtils {
         return ch2 == EOF;
     }
 
+    public static boolean contentExceptEncodingDateEquals(InputStream input1, InputStream input2)
+    		throws IOException {
+    	BufferedReader br1 = new BufferedReader(new InputStreamReader(input1));
+    	BufferedReader br2 = new BufferedReader(new InputStreamReader(input2));
+  
+    	String line1 = br1.readLine();
+    	String line2;
+    	boolean pastEncodingDate = false;
+    	while (line1 != null) {
+    		line2 = br2.readLine();
+    		if (!pastEncodingDate && line2.contains("<encoding-date")) {
+    				pastEncodingDate = true;
+			} else if (!(line1.compareTo(line2) == 0) || line2 == null) {
+    			return false;
+			}
+			line1 = br1.readLine();
+    	}
+    	return true;
+    }
+    
     /**
      * Compare the contents of two Readers to determine if they are equal or
      * not.

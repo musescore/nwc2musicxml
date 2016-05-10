@@ -1,0 +1,58 @@
+!NoteWorthyComposer(2.0)
+|SongInfo|Title:"Repeated Sections III"|Author:"NoteWorthy Software, Inc."|Lyricist:""|Copyright1:"Copyright © 2004 by NoteWorthy Software, Inc."|Copyright2:"All Rights Reserved"|Comments:"This example is a continuation from the prior sample. This example shows how to use a Coda in conjunction with a D.C. instruction to play an additional section at the end of the piece. Unlike the prior example that ended play at bar 5, this sample uses a \"To Coda\" instruction to send the performance to the ending sections, marked with a \"Coda\" instruction. A Coda section almost always appears directly after the \"D.C. al Coda\" or \"D.S. al Coda\" instruction.\r\n"
+|PgSetup|StaffSize:19|Zoom:4|TitlePage:Y|JustifyVertically:Y|ExtendLastSystem:N|DurationPadding:Y|PageNumbers:0|StaffLabels:None|BarNumbers:Boxed|StartingBar:1|AllowLayering:N
+|Font|Style:Staff Italic|Typeface:"Times New Roman"|Size:12|Bold:Y|Italic:Y|CharSet:0
+|Font|Style:Staff Bold|Typeface:"Times New Roman"|Size:9|Bold:Y|Italic:N|CharSet:0
+|Font|Style:Staff Lyric|Typeface:"Times New Roman"|Size:9|Bold:N|Italic:N|CharSet:0
+|Font|Style:Page Title Text|Typeface:"Times New Roman"|Size:24|Bold:Y|Italic:N|CharSet:0
+|Font|Style:Page Text|Typeface:"Times New Roman"|Size:12|Bold:N|Italic:N|CharSet:0
+|Font|Style:Page Small Text|Typeface:"Times New Roman"|Size:8|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 1|Typeface:"Times New Roman"|Size:9|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 2|Typeface:"Times New Roman"|Size:9|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 3|Typeface:"Times New Roman"|Size:9|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 4|Typeface:"Times New Roman"|Size:9|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 5|Typeface:"Times New Roman"|Size:8|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 6|Typeface:"Times New Roman"|Size:8|Bold:N|Italic:N|CharSet:0
+|PgMargins|Left:1.78|Top:1.78|Right:1.78|Bottom:1.78|Mirror:N
+|AddStaff|Name:"Staff-1"|Label:"Staff-1"|Group:"Standard"
+|StaffProperties|EndingBar:Section Close|Visible:Y|BoundaryTop:16|BoundaryBottom:10|Lines:5|Style:Standard|Layer:N|Color:Default
+|StaffProperties|Muted:N|Volume:127|StereoPan:64|Device:0|Channel:1
+|StaffInstrument|Trans:0|DynVel:10,30,45,60,75,92,108,127
+|Clef|Type:Treble
+|Key|Signature:F#
+|TimeSig|Signature:4/4
+|Note|Dur:Half|Pos:-2
+|Note|Dur:Half|Pos:-5
+|Bar
+|Flow|Style:Segno|Pos:1|Wide:Y
+|Note|Dur:4th|Pos:-1
+|Note|Dur:4th|Pos:-1
+|Note|Dur:4th|Pos:0
+|Note|Dur:4th|Pos:0
+|Bar|Style:MasterRepeatOpen
+|Note|Dur:Half|Pos:-2
+|Note|Dur:Half|Pos:-2
+|Bar
+|Note|Dur:4th|Pos:-2
+|Note|Dur:4th|Pos:-1
+|Note|Dur:4th|Pos:0
+|Note|Dur:4th|Pos:1
+|Bar|Style:MasterRepeatClose
+|Note|Dur:Half|Pos:2
+|Note|Dur:Half|Pos:2
+|Bar
+|Note|Dur:4th|Pos:3
+|Note|Dur:4th|Pos:2
+|Note|Dur:4th|Pos:1
+|Note|Dur:4th|Pos:0
+|Flow|Style:Fine|Pos:-1|Wide:Y
+|Bar
+|Note|Dur:Half|Pos:0
+|Note|Dur:Half|Pos:-2
+|Bar
+|Note|Dur:Half|Pos:0
+|Note|Dur:Half|Pos:-2
+|Flow|Style:DSalFine|Pos:-1|Wide:Y
+|Bar
+|Note|Dur:Whole|Pos:-2
+!NoteWorthyComposer-End

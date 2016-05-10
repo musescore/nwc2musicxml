@@ -6,7 +6,7 @@ import fr.lasconic.nwc2musicxml.convert.IConstants;
 public class Note implements IElement {
 	
 	public String dur;
-	private String pos;
+	//private String pos;
 	private String opts;
 
 	public boolean chord;
@@ -39,7 +39,7 @@ public class Note implements IElement {
 	}
 
 	public void setPos(String pos) {
-		this.pos = pos;
+		//this.pos = pos;
 		String tmpPos;
 		tmpPos = pos;
 		char[] c = pos.toCharArray();

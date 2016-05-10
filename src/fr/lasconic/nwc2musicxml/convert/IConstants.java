@@ -81,12 +81,17 @@ public interface IConstants {
 	public static final String BAR_LINE_TAG = "barline";
 	public static final String BAR_STYLE_TAG = "bar-style";
 	public static final String REPEAT_TAG = "repeat";
+	public static final String REPEAT_TIMES_TAG = "times";
 	public static final String ACCIDENTAL_TAG = "accidental";
 	public static final String LYRIC_TAG = "lyric";
 	public static final String TEXT_TAG = "text";
 	public static final String SYLLABIC_TAG = "syllabic";
 	public static final String END_LINE_TAG = "end-line";
 	public static final String END_PARAGRAPH_TAG = "end-paragraph";
+	
+	public static final String FERMATA_TAG = "fermata";
+	public static final String ENDING_TAG = "ending";
+	public static final String BREATH_MARK_TAG = "breath-mark";
 	
 	public static final String BEAM_TAG = "beam";
 
@@ -99,5 +104,9 @@ public interface IConstants {
 	public static final String PLACEMENT_ATTRIBUTE = "placement";
 
 	public static final int DIVISIONS_PER_QUARTER_NOTE = 480;
+	
+	public static final String BEAM_BEGIN_TAG = "begin";
+	public static final String BEAM_CONTINUE_TAG = "continue";
+	public static final String BEAM_END_TAG = "end";
 }
 

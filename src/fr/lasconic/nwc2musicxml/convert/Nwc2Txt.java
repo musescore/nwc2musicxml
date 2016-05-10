@@ -38,6 +38,9 @@ public class Nwc2Txt {
 		
 	}
 
+	public void useGoToKillCompilerWarning() throws Exception {
+		go();
+	}
 
 
 	private void go() throws Exception {
@@ -63,7 +66,7 @@ public class Nwc2Txt {
 
 			byte[] content = new byte[l - 6];
 			bf.get(content);
-			String s = new String(content);
+			//String s = new String(content);
 			Inflater decompressor = new Inflater();
 			decompressor.setInput(content);
 			// Create an expandable byte array to hold the decompressed data
@@ -90,7 +93,8 @@ public class Nwc2Txt {
 			// Get the decompressed data
 			nwcData = bos.toByteArray();
 		} else if ("[Note]".compareTo(format) != 0) {
-			System.err.println("Unknow format");
+			System.err.println("Unknown format");
+			raf.close();
 			return;
 		}
 
@@ -107,6 +111,9 @@ public class Nwc2Txt {
 			}
 		}
 		out.close();
+		
+		// deal with compiler warning
+		raf.close();
 		
 		ByteBuffer bb = ByteBuffer.wrap(nwcData);
 		
