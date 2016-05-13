@@ -10,7 +10,7 @@
 All Rights Reserved</rights>
     <encoding>
       <software>NWC2MusicXML</software>
-      <encoding-date>2016-05-07</encoding-date>
+      <encoding-date>2016-05-14</encoding-date>
     </encoding>
   </identification>
   <part-list>
@@ -57,8 +57,8 @@ All Rights Reserved</rights>
         <staff>1</staff>
       </note>
       <barline location="right">
-        <ending number="1" type="stop"/>
         <bar-style>light-heavy</bar-style>
+        <ending number="1" type="stop"/>
         <repeat direction="backward"/>
       </barline>
     </measure>
@@ -77,8 +77,8 @@ All Rights Reserved</rights>
         <staff>1</staff>
       </note>
       <barline location="right">
-        <ending number="2" type="discontinue"/>
         <bar-style>light-light</bar-style>
+        <ending number="2" type="discontinue"/>
       </barline>
     </measure>
     <measure number="4">
@@ -148,8 +148,8 @@ All Rights Reserved</rights>
         <staff>1</staff>
       </note>
       <barline location="right">
-        <ending number="1,2" type="stop"/>
         <bar-style>light-heavy</bar-style>
+        <ending number="1,2" type="stop"/>
         <repeat direction="backward"/>
       </barline>
     </measure>
