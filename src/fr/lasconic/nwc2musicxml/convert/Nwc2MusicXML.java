@@ -67,6 +67,8 @@ public class Nwc2MusicXML implements IConstants {
 	private EndingSet endingSet = new EndingSet();
 	private int measureId; // used for initial scan for endings
 	
+private int ccc = 0;
+
 	public Nwc2MusicXML() {
 		first = false;
 		currentStaffId = 0;
@@ -91,6 +93,11 @@ public class Nwc2MusicXML implements IConstants {
 				input.close();
 				currentStaffId = 0;
 				endingSet.prepareEndings();
+			}
+			
+			// check the NWCTXT file has valid format (flow control is consistent across staves
+			if (!endingSet.compareStaves()) {
+				System.err.println("NWCTXT file has inconsistent flow control across staves - the file is invalid and may not import correctly");
 			}
 			// main file processes to convert to MusicXML
 			input = new BufferedReader(new InputStreamReader(in2, "UTF-8"));
@@ -167,6 +174,12 @@ public class Nwc2MusicXML implements IConstants {
 		return ConversionResult.CONTINUE;
 	}
 	
+	// Need to read and store the endings ahead of normal processing, because NWC doesn't
+	// define the end of a volta - so we create voltas that start where NWC starts them
+	// and either end when the next volta in the set starts, or discontinue at the end of
+	// the bar the volta is placed if it is the last volta in a set
+	// Also review here whether voltas, segnos and double bar lines are different between
+	// staves - and warn if so
 	private int processEndings(String line) {
 		int result = processEmptyErrorLines(line);
 		if (result != ConversionResult.CONTINUE) {
@@ -178,6 +191,7 @@ public class Nwc2MusicXML implements IConstants {
 		if (line.startsWith("!NoteWorthyComposer-End")
 				|| line.startsWith("!NoteWorthyComposerClip-End")) {
 			// process the captured endings and work out which are stop/discontinue
+			endingSet.addLastBar(currentStaffId, measureId);
 			return ConversionResult.END_OF_FILE;
 		}
 
@@ -187,9 +201,19 @@ public class Nwc2MusicXML implements IConstants {
 				String type = sArray[1];
 				// System.err.println(type);
 				if (type.compareTo("AddStaff") == 0) { // Add Staff
+					if (currentStaffId >0) {
+						endingSet.addLastBar(currentStaffId, measureId);
+					}
 					currentStaffId++;
 					measureId = 0;
 				} else if (type.compareTo("Bar") == 0) {
+					for (int i = 2; i < sArray.length; i++) {
+						sA = sArray[i];
+						if (sA.contains("Style")) {
+							sArray2 = sA.split(":");
+							endingSet.addDoubleBarline(currentStaffId, measureId, sArray2[1]);
+						}
+					}
 					measureId++;
 				} else if (type.compareTo("Ending") == 0) {
 					for (int i = 2; i < sArray.length; i++) {
@@ -199,6 +223,15 @@ public class Nwc2MusicXML implements IConstants {
 							endingSet.addEnding(currentStaffId, measureId, sArray2[1]);
 						}
 					}
+				} else if (type.compareTo("Flow") == 0) {
+					for (int i = 2; i < sArray.length; i++) {
+						sA = sArray[i];
+						if (sA.contains("Style")) {
+							sArray2 = sA.split(":");
+							endingSet.addFlow(currentStaffId, measureId, sArray2[1]);
+						}
+					}
+					
 				}
 			}
 		}
@@ -622,7 +655,7 @@ public class Nwc2MusicXML implements IConstants {
 							} else if ("LocalRepeatOpen".compareTo(sArray2[1]) == 0) {
 								//newMeasure.leftBarType = "light-light";
 								newMeasure.leftBarType = "heavy-light";
-								// possible adjustment - neither Sibelius or MuseScore recognise a light-light repeat bar
+								// neither Sibelius or MuseScore recognise a light-light repeat bar
 								// only heavy-light - and with light-light the repeat times parameter is ignored
 								// so change to heavy-light
 								newMeasure.leftRepeat = true;

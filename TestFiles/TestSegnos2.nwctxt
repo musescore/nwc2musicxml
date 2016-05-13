@@ -1,0 +1,139 @@
+!NoteWorthyComposer(2.0)
+|SongInfo|Title:"Repeated Sections IV"|Author:"NoteWorthy Software, Inc."|Lyricist:""|Copyright1:"Copyright © 2004 by NoteWorthy Software, Inc."|Copyright2:"All Rights Reserved"|Comments:"This sample demonstrates the following repeat techniques:\r\n\r\n1 - An initial repeated section using master repeats. Master repeats use special endings to control the number of repeats that will be performed. Master repeats are ignored after a Dal Segno has been performed, and only special endings marked with the \'D\' ending are performed.\r\n\r\nThe \"Segno\" and \"To Coda\" marks are used after the \"D.S. al Coda\" item has been performed.\r\n\r\n2 - A \"D.S. al Coda\" at measure 11 is used to send play back to the \"Segno\" mark that appears at measure 2. The special ending at measure 6 is used because it is marked as the Default. The \"To Coda\" instruction at the end of measure 8 sends play to the coda mark at measure 11. \r\n\r\n3. New master repeats are used in the Coda section. Master repeats are accepted again after the \"To Coda\", so this kind of repeated section will work. Note, however, that master repeats are ignored after a \"D.S. al Coda\" but before the \"To Coda\" has been encountered."
+|PgSetup|StaffSize:19|Zoom:4|TitlePage:Y|JustifyVertically:Y|ExtendLastSystem:N|DurationPadding:Y|PageNumbers:0|StaffLabels:None|BarNumbers:Boxed|StartingBar:1|AllowLayering:N
+|Font|Style:Staff Italic|Typeface:"Times New Roman"|Size:12|Bold:Y|Italic:Y|CharSet:0
+|Font|Style:Staff Bold|Typeface:"Times New Roman"|Size:9|Bold:Y|Italic:N|CharSet:0
+|Font|Style:Staff Lyric|Typeface:"Times New Roman"|Size:9|Bold:N|Italic:N|CharSet:0
+|Font|Style:Page Title Text|Typeface:"Times New Roman"|Size:24|Bold:Y|Italic:N|CharSet:0
+|Font|Style:Page Text|Typeface:"Times New Roman"|Size:12|Bold:N|Italic:N|CharSet:0
+|Font|Style:Page Small Text|Typeface:"Times New Roman"|Size:8|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 1|Typeface:"Times New Roman"|Size:9|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 2|Typeface:"Times New Roman"|Size:9|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 3|Typeface:"Times New Roman"|Size:9|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 4|Typeface:"Times New Roman"|Size:9|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 5|Typeface:"Times New Roman"|Size:8|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 6|Typeface:"Times New Roman"|Size:8|Bold:N|Italic:N|CharSet:0
+|PgMargins|Left:1.78|Top:1.78|Right:1.78|Bottom:1.78|Mirror:N
+|AddStaff|Name:"Staff-1"|Label:"Staff-1"|Group:"Standard"
+|StaffProperties|EndingBar:Section Close|Visible:Y|BoundaryTop:16|BoundaryBottom:10|Lines:5|Style:Standard|Layer:N|Color:Default
+|StaffProperties|Muted:N|Volume:127|StereoPan:64|Device:0|Channel:1
+|StaffInstrument|Trans:0|DynVel:10,30,45,60,75,92,108,127
+|Clef|Type:Treble
+|Key|Signature:F#
+|TimeSig|Signature:4/4
+|Note|Dur:Half|Pos:-2
+|Note|Dur:Half|Pos:-2
+|Flow|Style:Segno|Pos:8|Wide:Y|Placement:BestFitForward
+|Bar|Style:MasterRepeatOpen
+|Rest|Dur:4th
+|Note|Dur:4th|Pos:-5
+|Note|Dur:Half|Pos:-2
+|Bar
+|Note|Dur:Half|Pos:0
+|Note|Dur:Half|Pos:-1
+|Bar
+|Ending|Endings:1
+|Note|Dur:4th|Pos:-2
+|Note|Dur:4th|Pos:-1
+|Note|Dur:4th|Pos:0
+|Note|Dur:4th|Pos:1
+|Bar
+|Note|Dur:4th|Pos:-1
+|Note|Dur:4th|Pos:0
+|Note|Dur:4th|Pos:1
+|Note|Dur:4th|Pos:2
+|Bar|Style:MasterRepeatClose
+|Ending|Endings:2,D
+|Note|Dur:Half|Pos:-2
+|Note|Dur:Half|Pos:0
+|Bar
+|Note|Dur:Half|Pos:-1
+|Note|Dur:Half|Pos:1
+|Bar|Style:Double
+|Note|Dur:Half|Pos:-2
+|Note|Dur:Half|Pos:-2
+|Flow|Style:ToCoda|Pos:8|Wide:Y|Placement:BestFitForward
+|Bar
+|Note|Dur:Half|Pos:-5
+|Note|Dur:Half|Pos:-5
+|Bar
+|Note|Dur:Half|Pos:-4
+|Note|Dur:Half|Pos:-4
+|Flow|Style:DSalCoda|Pos:8|Wide:Y|Placement:BestFitForward
+|Flow|Style:Coda|Pos:7|Wide:Y|Placement:BestFitForward
+|Clef|Type:Treble
+|Key|Signature:F#,C#
+|Bar|Style:MasterRepeatOpen
+|Note|Dur:Half|Pos:-5
+|Note|Dur:Half|Pos:-3
+|Bar
+|Ending|Endings:1,2,3
+|Note|Dur:Half|Pos:-1
+|Note|Dur:Half|Pos:-3
+|Bar|Style:MasterRepeatClose
+|Ending|Endings:4
+|TempoVariance|Style:Fermata|Pause:0|Pos:7|Wide:Y|Placement:BestFitForward
+|Note|Dur:Whole|Pos:-2
+|AddStaff|Name:"Staff-2"|Group:"Standard"
+|StaffProperties|EndingBar:Section Close|Visible:Y|BoundaryTop:10|BoundaryBottom:10|Lines:5|Style:Standard|Layer:N|Color:Default
+|StaffProperties|Muted:N|Volume:127|StereoPan:64|Device:0|Channel:2
+|StaffInstrument|Trans:0|DynVel:10,30,45,60,75,92,108,127
+|Clef|Type:Bass
+|Key|Signature:F#
+|TimeSig|Signature:4/4
+|Note|Dur:Whole|Pos:0
+|Bar
+|Note|Dur:Half|Pos:-2
+|Note|Dur:Half|Pos:-2
+|Flow|Style:Segno|Pos:8|Wide:Y|Placement:BestFitForward
+|Bar|Style:MasterRepeatOpen
+|Rest|Dur:4th
+|Note|Dur:4th|Pos:-5
+|Note|Dur:Half|Pos:-2
+|Bar
+|Note|Dur:Half|Pos:0
+|Note|Dur:Half|Pos:-1
+|Bar
+|Ending|Endings:1
+|Note|Dur:4th|Pos:-2
+|Note|Dur:4th|Pos:-1
+|Note|Dur:4th|Pos:0
+|Note|Dur:4th|Pos:1
+|Bar
+|Note|Dur:4th|Pos:-1
+|Note|Dur:4th|Pos:0
+|Note|Dur:4th|Pos:1
+|Note|Dur:4th|Pos:2
+|Bar|Style:MasterRepeatClose
+|Ending|Endings:2,D
+|Note|Dur:Half|Pos:-2
+|Note|Dur:Half|Pos:0
+|Bar
+|Note|Dur:Half|Pos:-1
+|Note|Dur:Half|Pos:1
+|Bar|Style:Double
+|Note|Dur:Half|Pos:-2
+|Note|Dur:Half|Pos:-2
+|Flow|Style:ToCoda|Pos:8|Wide:Y|Placement:BestFitForward
+|Bar
+|Note|Dur:Half|Pos:-5
+|Note|Dur:Half|Pos:-5
+|Bar
+|Note|Dur:Half|Pos:-4
+|Note|Dur:Half|Pos:-4
+|Flow|Style:DSalCoda|Pos:8|Wide:Y|Placement:BestFitForward
+|Flow|Style:Coda|Pos:7|Wide:Y|Placement:BestFitForward
+|Clef|Type:Treble
+|Key|Signature:F#,C#
+|Bar|Style:MasterRepeatOpen
+|Note|Dur:Half|Pos:-5
+|Note|Dur:Half|Pos:-3
+|Bar
+|Ending|Endings:1,2,3
+|Note|Dur:Half|Pos:-1
+|Note|Dur:Half|Pos:-3
+|Bar|Style:MasterRepeatClose
+|Ending|Endings:4
+|TempoVariance|Style:Fermata|Pause:0|Pos:7|Wide:Y|Placement:BestFitForward
+|Note|Dur:Whole|Pos:-2
+!NoteWorthyComposer-End
