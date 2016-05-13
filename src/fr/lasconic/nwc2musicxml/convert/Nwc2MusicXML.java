@@ -914,7 +914,13 @@ public class Nwc2MusicXML implements IConstants {
 										.createElement(BAR_STYLE_TAG);
 								barStyleEl.appendChild(doc
 										.createTextNode(m0.leftBarType));
-								barLineEl.appendChild(barStyleEl);
+								// Check whether ending tag of barline has already been created, if so add before
+								Node testEnding = barLineEl.getFirstChild();
+								if (testEnding != null && (testEnding.getNodeName().compareTo(BAR_STYLE_TAG) != 0)) {
+									barLineEl.insertBefore(barStyleEl, testEnding);
+								} else {
+									barLineEl.appendChild(barStyleEl);									
+								}
 								if (m0.leftRepeat) {
 									Element repeatElement = doc
 											.createElement(REPEAT_TAG);
@@ -1327,7 +1333,13 @@ public class Nwc2MusicXML implements IConstants {
 										.createElement(BAR_STYLE_TAG);
 								barStyleEl.appendChild(doc
 										.createTextNode(m0.rightBarType));
-								barlineEl.appendChild(barStyleEl);
+								// Check whether ending tag of barline has already been created, if so add before
+								Node testEnding = barlineEl.getFirstChild();
+								if (testEnding != null && (testEnding.getNodeName().compareTo(BAR_STYLE_TAG) != 0)) {
+									barlineEl.insertBefore(barStyleEl, testEnding);
+								} else {
+									barlineEl.appendChild(barStyleEl);									
+								}
 								if (m0.rightRepeat) {
 									Element repeatElement = doc
 											.createElement(REPEAT_TAG);
@@ -1399,7 +1411,13 @@ public class Nwc2MusicXML implements IConstants {
 										.createElement(BAR_STYLE_TAG);
 								barStyleEl.appendChild(doc
 										.createTextNode(p.barLineStyle));
-								barLineEl.appendChild(barStyleEl);
+								// Check whether ending tag of barline has already been created, if so add before
+								Node testEnding = barLineEl.getFirstChild();
+								if (testEnding != null && (testEnding.getNodeName().compareTo(BAR_STYLE_TAG) != 0)) {
+									barLineEl.insertBefore(barStyleEl, testEnding);
+								} else {
+									barLineEl.appendChild(barStyleEl);									
+								}
 								if (p.endRepeat) {
 									Element repeatElement = doc
 											.createElement(REPEAT_TAG);
