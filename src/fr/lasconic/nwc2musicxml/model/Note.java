@@ -62,7 +62,7 @@ public class Note implements IElement {
 			accidental = false;
 		}
 		// if NWC thinks a note is too low for an instrument it puts "!n" on the end of the Note Pos - e.g. Note|Dur:Whole|Pos:1!1
-		// and the previous code simply removed the ! giving a ridicululously low position (and sometimes generates null pointer exception)
+		// and the previous code simply removed the ! giving a ridiculously low position (and sometimes generates null pointer exception)
 		// correct treatment is to remove !n leaving just the position value
 		tmpPos = tmpPos.replaceAll("!.*", "");
 		tmpPos = tmpPos.replaceAll("[^0-9\\-]", "");

@@ -966,6 +966,12 @@ public class Nwc2MusicXML implements IConstants {
 						int backupStaff = 0;
 						int backupVoice = 0;
 						for (Staff staff : part.staves) {
+							// allow graceful handling of staves with different numbers of measures - without this check
+							// get ArrayList.rangeCheck exception below on staff.measures.get(mId)
+							// this will produce an xml file with fewer bars on subsequent stave(s) than the first stave
+							// but better that than for the programme to crash with an Exception
+							if (mId >= staff.measures.size()) { break; }
+							
 							boolean addedNote = false;
 							int[] noteKeys = staff.transformKeyListForTie();
 							// slurStarted = false;
