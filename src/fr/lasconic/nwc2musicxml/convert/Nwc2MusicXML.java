@@ -67,8 +67,6 @@ public class Nwc2MusicXML implements IConstants {
 	private EndingSet endingSet = new EndingSet();
 	private int measureId; // used for initial scan for endings
 	
-private int ccc = 0;
-
 	public Nwc2MusicXML() {
 		first = false;
 		currentStaffId = 0;
