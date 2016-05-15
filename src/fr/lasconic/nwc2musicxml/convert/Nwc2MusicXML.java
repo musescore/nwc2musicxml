@@ -1064,8 +1064,7 @@ public class Nwc2MusicXML implements IConstants {
 										} else {
 											// append to the existing attribute
 											// element
-											if (attributesEl != null)
-												appendTo(attributesEl, key, doc);
+											appendTo(attributesEl, key, doc);
 										}
 										staff.currentKey = key;
 
@@ -1861,7 +1860,11 @@ public class Nwc2MusicXML implements IConstants {
 	protected void appendTo(Element attributeEl, TimeSig timeSig, Document doc) {
 		NodeList stavesEl = attributeEl.getElementsByTagName(STAVES_TAG);
 		if (stavesEl.getLength() > 0) {
-			attributeEl.insertBefore(convert(timeSig, doc), stavesEl.item(0));
+			// if there is a stave_tag then this is a multiple-stave part and need to take care not to add TimeSig twice
+			NodeList prevTimeSigEl = attributeEl.getElementsByTagName(TIME_TAG);
+			if (prevTimeSigEl.getLength() == 0) {
+				attributeEl.insertBefore(convert(timeSig, doc), stavesEl.item(0));
+			}
 		} else {
 			NodeList clef = attributeEl.getElementsByTagName(CLEF_TAG);
 			if (clef.getLength() > 0) {
@@ -1875,7 +1878,11 @@ public class Nwc2MusicXML implements IConstants {
 	protected void appendTo(Element attributeEl, Key key, Document doc) {
 		NodeList stavesEl = attributeEl.getElementsByTagName(STAVES_TAG);
 		if (stavesEl.getLength() > 0) {
-			attributeEl.insertBefore(convert(key, doc), stavesEl.item(0));
+			// if there is a stave_tag then this is a multiple-stave part and need to take care not to add Key twice
+			NodeList prevKeyEl = attributeEl.getElementsByTagName(KEY_TAG);
+			if (prevKeyEl.getLength() == 0) {
+				attributeEl.insertBefore(convert(key, doc), stavesEl.item(0));
+			}
 		} else {
 			NodeList clef = attributeEl.getElementsByTagName(CLEF_TAG);
 			if (clef.getLength() > 0) {
