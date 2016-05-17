@@ -96,8 +96,8 @@ public class EndingSet implements IElement {
 			String firstStaff;
 			String secondStaff;
 			for (int s = 2; s <= maxStaves; s++) {
-				if (getLastBar(1) != getLastBar(s)) {
-					System.err.println("Stave " + s + " (" + getLastBar(s) + ") has as a different length to Stave 1 (" + getLastBar(1) + ")");
+				if (getLastBar(1).compareTo(getLastBar(s)) != 0) {
+					System.err.println("   Stave " + s + " (" + getLastBar(s) + ") has a different length to Stave 1 (" + getLastBar(1) + ")");
 					validFile = false;
 				}
 				for (int m = 1; m <= maxMeasures; m++) {
@@ -105,14 +105,14 @@ public class EndingSet implements IElement {
 					firstStaff = getDoubleBar(1, m);
 					secondStaff = getDoubleBar(s, m);
 					if (hasValue(firstStaff) && !hasValue(secondStaff)) {
-						System.err.println("Barline Error Bar " + m + ": staff 1 has Style|" + firstStaff + " and staff " + s + " does not");
+						System.err.println("   Barline Error Bar " + m + ": staff 1 has Style|" + firstStaff + " and staff " + s + " does not");
 						validFile = false;
 					} else if (!hasValue(firstStaff) && hasValue(secondStaff)) {
-						System.err.println("Barline Error Bar " + m + ": staff " + s + " has Style|" + secondStaff + " and staff 1 does not");
+						System.err.println("   Barline Error Bar " + m + ": staff " + s + " has Style|" + secondStaff + " and staff 1 does not");
 						validFile = false;
 					} else if (hasValue(firstStaff) && hasValue(secondStaff)) {
 						if (firstStaff.compareTo(secondStaff) != 0) {
-							System.err.println("Barline Error Bar " + m + ": staff 1 has Style|" + firstStaff + " and staff " + s + " has Style|" + secondStaff);
+							System.err.println("   Barline Error Bar " + m + ": staff 1 has Style|" + firstStaff + " and staff " + s + " has Style|" + secondStaff);
 							validFile = false;							
 						}
 					}
@@ -123,11 +123,11 @@ public class EndingSet implements IElement {
 					if (hasValue(firstStaff) && !hasValue(secondStaff)) {
 						// valid - ok if the segnos only appear on the first staff
 					} else if (!hasValue(firstStaff) && hasValue(secondStaff)) {
-						System.err.println("Flow Error Bar " + m + ": staff " + s + " has " + secondStaff + " and staff 1 does not");
+						System.err.println("   Flow Error Bar " + m + ": staff " + s + " has " + secondStaff + " and staff 1 does not");
 						validFile = false;
 					} else if (hasValue(firstStaff) && hasValue(secondStaff)) {
 						if (firstStaff.compareTo(secondStaff) != 0) {
-							System.err.println("Flow Error Bar " + m + ": staff 1 has " + firstStaff + " at bar " + m + " has " + secondStaff);
+							System.err.println("   Flow Error Bar " + m + ": staff 1 has " + firstStaff + " at bar " + m + " has " + secondStaff);
 							validFile = false;							
 						}
 					}
@@ -138,11 +138,11 @@ public class EndingSet implements IElement {
 					if (hasValue(firstStaff) && !hasValue(secondStaff)) {
 						// valid - ok if the voltas only appear on the first staff
 					} else if (!hasValue(firstStaff) && hasValue(secondStaff)) {
-						System.err.println("Volta Error Bar + " + m + ": staff " + s + " has Ending|" + secondStaff + " and staff 1 does not");
+						System.err.println("   Volta Error Bar + " + m + ": staff " + s + " has Ending|" + secondStaff + " and staff 1 does not");
 						validFile = false;
 					} else if (hasValue(firstStaff) && hasValue(secondStaff)) {
 						if (firstStaff.compareTo(secondStaff) != 0) {
-							System.err.println("Volta Error Bar " + m + ": staff 1 has Ending|" + firstStaff + " and staff " + s + " has Ending|" + secondStaff);
+							System.err.println("   Volta Error Bar " + m + ": staff 1 has Ending|" + firstStaff + " and staff " + s + " has Ending|" + secondStaff);
 							validFile = false;					
 						}
 					}					
