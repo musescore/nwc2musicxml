@@ -2003,6 +2003,7 @@ public class Nwc2MusicXML implements IConstants {
 					boolean compressed = false;
 					if ((inStream1.read(hdrNWZ) == 6) && Arrays.equals(hdrNWZ,refNWZ)) {
 						inStream1 = new InflaterInputStream(finStream1);
+						inStream2.read(hdrNWZ);
 						inStream2 = new InflaterInputStream(finStream2);
 						compressed = true;
 					}
