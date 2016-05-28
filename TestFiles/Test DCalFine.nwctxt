@@ -1,0 +1,52 @@
+!NoteWorthyComposer(2.0)
+|SongInfo|Title:"Repeated Sections II"|Author:"NoteWorthy Software, Inc."|Lyricist:""|Copyright1:"Copyright © 2004 by NoteWorthy Software, Inc."|Copyright2:"All Rights Reserved"|Comments:"This example demonstrates the following behaviours:\r\n\r\n-> Master repeats occur only once by default\r\nWhen a master repeat is used in a section, the section will be repeated only once unless special endings are used to enable additional repeat iterations. You will notice the repeat when the repeats are played on the first pass.\r\n\r\n-> The \"D.C. al Fine\" sends the performance back to the beginning\r\nWhen a \"Da capo\" is performed, play starts over from the beginning of the piece. In this case, the Fine at bar 5 stops play, and the notes after bar 6 are never played (they are there just to demonstrate this fact).\r\n\r\n-> Master repeats are ignored after a \"D.C.\" or \"D.S.\" redirection\r\nWhen this sample is played back, you will notice that the repeated section between bar 2 and bar 4 are ignored after the D.C. has been performed.\r\n\r\n-> A Fine stops play only after a \"Da capo\" or \"Dal Segno\"\r\nWhen play first passes through the Fine, the instruction is ignored (ie. play does not stop). The Fine only has an effect after "
+|PgSetup|StaffSize:19|Zoom:4|TitlePage:Y|JustifyVertically:Y|ExtendLastSystem:N|DurationPadding:Y|PageNumbers:0|StaffLabels:None|BarNumbers:Boxed|StartingBar:1|AllowLayering:N
+|Font|Style:Staff Italic|Typeface:"Times New Roman"|Size:12|Bold:Y|Italic:Y|CharSet:0
+|Font|Style:Staff Bold|Typeface:"Times New Roman"|Size:9|Bold:Y|Italic:N|CharSet:0
+|Font|Style:Staff Lyric|Typeface:"Times New Roman"|Size:9|Bold:N|Italic:N|CharSet:0
+|Font|Style:Page Title Text|Typeface:"Times New Roman"|Size:24|Bold:Y|Italic:N|CharSet:0
+|Font|Style:Page Text|Typeface:"Times New Roman"|Size:12|Bold:N|Italic:N|CharSet:0
+|Font|Style:Page Small Text|Typeface:"Times New Roman"|Size:8|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 1|Typeface:"Times New Roman"|Size:9|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 2|Typeface:"Times New Roman"|Size:9|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 3|Typeface:"Times New Roman"|Size:9|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 4|Typeface:"Times New Roman"|Size:9|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 5|Typeface:"Times New Roman"|Size:8|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 6|Typeface:"Times New Roman"|Size:8|Bold:N|Italic:N|CharSet:0
+|PgMargins|Left:1.78|Top:1.78|Right:1.78|Bottom:1.78|Mirror:N
+|AddStaff|Name:"Staff-1"|Label:"Staff-1"|Group:"Standard"
+|StaffProperties|EndingBar:Section Close|Visible:Y|BoundaryTop:16|BoundaryBottom:10|Lines:5|Style:Standard|Layer:N|Color:Default
+|StaffProperties|Muted:N|Volume:127|StereoPan:64|Device:0|Channel:1
+|StaffInstrument|Trans:0|DynVel:10,30,45,60,75,92,108,127
+|Clef|Type:Treble
+|Key|Signature:F#
+|TimeSig|Signature:4/4
+|Note|Dur:Half|Pos:-2
+|Note|Dur:Half|Pos:-5
+|Bar|Style:MasterRepeatOpen
+|Note|Dur:Half|Pos:-2
+|Note|Dur:Half|Pos:-2
+|Bar
+|Note|Dur:4th|Pos:-2
+|Note|Dur:4th|Pos:-1
+|Note|Dur:4th|Pos:0
+|Note|Dur:4th|Pos:1
+|Bar|Style:MasterRepeatClose
+|Note|Dur:Half|Pos:2
+|Note|Dur:Half|Pos:2
+|Flow|Style:Fine|Pos:-8|Wide:Y|Placement:BestFitForward
+|Bar
+|Note|Dur:4th|Pos:3
+|Note|Dur:4th|Pos:2
+|Note|Dur:4th|Pos:1
+|Note|Dur:4th|Pos:0
+|Flow|Style:DCalFine|Pos:10|Wide:Y|Placement:BestFitForward
+|Bar
+|Note|Dur:Half|Pos:0
+|Note|Dur:Half|Pos:-2
+|Bar
+|Note|Dur:Half|Pos:0
+|Note|Dur:Half|Pos:-2
+|Bar
+|Note|Dur:Whole|Pos:-2
+!NoteWorthyComposer-End

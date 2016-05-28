@@ -62,9 +62,10 @@ public class Nwc2mscz {
 			if(nwcTxtFile.exists()) {
 				//run txt 2 musicxml
 				File musicXmlFile = new File(dir, name+".xml");
-				FileInputStream fileInputStream = new FileInputStream(nwcTxtFile);
+				FileInputStream fileInputStream1 = new FileInputStream(nwcTxtFile);
+				FileInputStream fileInputStream2 = new FileInputStream(nwcTxtFile);
 				Nwc2MusicXML converter = new Nwc2MusicXML();
-				ConversionResult result = converter.convert(fileInputStream);
+				ConversionResult result = converter.convert(fileInputStream1, fileInputStream2);
 				String title = result.getTitle();
 				System.err.println("Converting... title: [" + title + "]");
 				if (converter.write(new FileOutputStream(musicXmlFile)) == -1) {

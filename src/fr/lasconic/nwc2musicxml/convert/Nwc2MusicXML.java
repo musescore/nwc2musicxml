@@ -35,6 +35,9 @@ import org.w3c.dom.NodeList;
 
 import fr.lasconic.nwc2musicxml.model.Clef;
 import fr.lasconic.nwc2musicxml.model.Dynamics;
+import fr.lasconic.nwc2musicxml.model.Ending;
+import fr.lasconic.nwc2musicxml.model.EndingSet;
+import fr.lasconic.nwc2musicxml.model.Flow;
 import fr.lasconic.nwc2musicxml.model.Forward;
 import fr.lasconic.nwc2musicxml.model.IElement;
 import fr.lasconic.nwc2musicxml.model.Key;
@@ -47,6 +50,7 @@ import fr.lasconic.nwc2musicxml.model.Part;
 import fr.lasconic.nwc2musicxml.model.Score;
 import fr.lasconic.nwc2musicxml.model.Staff;
 import fr.lasconic.nwc2musicxml.model.Tempo;
+import fr.lasconic.nwc2musicxml.model.TempoVariance;
 import fr.lasconic.nwc2musicxml.model.Text;
 import fr.lasconic.nwc2musicxml.model.TimeSig;
 import fr.lasconic.nwc2musicxml.model.Wedge;
@@ -60,18 +64,41 @@ public class Nwc2MusicXML implements IConstants {
 	private Part p;
 	private int currentStaffId;
 	private Measure measure;
-
+	private EndingSet endingSet = new EndingSet();
+	private int measureId; // used for initial scan for endings
+	
 	public Nwc2MusicXML() {
 		first = false;
 		currentStaffId = 0;
 	}
 
-	public ConversionResult convert(InputStream in) {
+	public ConversionResult convert(InputStream in1, InputStream in2) {
 		int res = ConversionResult.CONTINUE;
 		score = new Score();
 		ConversionResult result = new ConversionResult();
 		try {
-			BufferedReader input = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			// initial scan for Endings
+			BufferedReader input = new BufferedReader(new InputStreamReader(in1, "UTF-8"));
+			try {
+				String line = null; // not declared within while loop
+
+				while ((line = input.readLine()) != null) {
+					res = processEndings(line);
+					if (res != ConversionResult.CONTINUE)
+						break;
+				}
+			} finally {
+				input.close();
+				currentStaffId = 0;
+				endingSet.prepareEndings();
+			}
+			
+			// check the NWCTXT file has valid format (flow control is consistent across staves
+			if (!endingSet.compareStaves()) {
+				System.err.println("NWCTXT file has inconsistent flow control across staves - the file is invalid and may not import correctly");
+			}
+			// main file processes to convert to MusicXML
+			input = new BufferedReader(new InputStreamReader(in2, "UTF-8"));
 			try {
 				String line = null; // not declared within while loop
 
@@ -127,8 +154,8 @@ public class Nwc2MusicXML implements IConstants {
 		}
 		return result;
 	}
-
-	private int processLine(String line) {
+	
+	private int processEmptyErrorLines(String line) {
 		if (line.startsWith("#") || line.trim().length() == 0) {
 			return ConversionResult.CONTINUE;
 		}
@@ -141,7 +168,80 @@ public class Nwc2MusicXML implements IConstants {
 			first = true;
 			return ConversionResult.CONTINUE;
 		}
-			
+		
+		return ConversionResult.CONTINUE;
+	}
+	
+	// Need to read and store the endings ahead of normal processing, because NWC doesn't
+	// define the end of a volta - so we create voltas that start where NWC starts them
+	// and either end when the next volta in the set starts, or discontinue at the end of
+	// the bar the volta is placed if it is the last volta in a set
+	// Also review here whether voltas, segnos and double bar lines are different between
+	// staves - and warn if so
+	private int processEndings(String line) {
+		int result = processEmptyErrorLines(line);
+		if (result != ConversionResult.CONTINUE) {
+			return result;
+		}
+		String[] sArray2;
+		String sA;
+
+		if (line.startsWith("!NoteWorthyComposer-End")
+				|| line.startsWith("!NoteWorthyComposerClip-End")) {
+			// process the captured endings and work out which are stop/discontinue
+			endingSet.addLastBar(currentStaffId, measureId);
+			return ConversionResult.END_OF_FILE;
+		}
+
+		if (line.startsWith("|")) {
+			String[] sArray = line.split("\\|");
+			if (sArray.length > 0) {
+				String type = sArray[1];
+				// System.err.println(type);
+				if (type.compareTo("AddStaff") == 0) { // Add Staff
+					if (currentStaffId >0) {
+						endingSet.addLastBar(currentStaffId, measureId);
+					}
+					currentStaffId++;
+					measureId = 0;
+				} else if (type.compareTo("Bar") == 0) {
+					for (int i = 2; i < sArray.length; i++) {
+						sA = sArray[i];
+						if (sA.contains("Style")) {
+							sArray2 = sA.split(":");
+							endingSet.addDoubleBarline(currentStaffId, measureId, sArray2[1]);
+						}
+					}
+					measureId++;
+				} else if (type.compareTo("Ending") == 0) {
+					for (int i = 2; i < sArray.length; i++) {
+						sA = sArray[i];
+						if (sA.contains("Endings")) {
+							sArray2 = sA.split(":");
+							endingSet.addEnding(currentStaffId, measureId, sArray2[1]);
+						}
+					}
+				} else if (type.compareTo("Flow") == 0) {
+					for (int i = 2; i < sArray.length; i++) {
+						sA = sArray[i];
+						if (sA.contains("Style")) {
+							sArray2 = sA.split(":");
+							endingSet.addFlow(currentStaffId, measureId, sArray2[1]);
+						}
+					}
+					
+				}
+			}
+		}
+		return ConversionResult.CONTINUE;
+	}
+
+	private int processLine(String line) {
+		int result = processEmptyErrorLines(line);
+		if (result != ConversionResult.CONTINUE) {
+			return result;
+		}
+		
 		String[] sArray2;
 		String sA;
 		int voiceId = (currentStaffId - 1) * 4 + 1;
@@ -152,6 +252,17 @@ public class Nwc2MusicXML implements IConstants {
 			if (Wedge.currentWedge != null) {
 				measure.addElement(new Wedge("Stop"), voiceId);
 			}
+			// Check for unclosed ending at last bar
+			// until NWC supports multi-bar endings, we always use EndingSet to work out when endings close
+			String endingToClose = endingSet.getEnding(currentStaffId, measureId);
+			if (endingToClose.compareTo("") != 0) {
+				Ending ending = new Ending();
+				ending.number = endingSet.getEndingNumber(currentStaffId, measureId);
+				ending.type = endingSet.getEndingType(currentStaffId, measureId);
+				// deliberately on measure (last measure) not newMeasure
+				measure.addElement(ending, voiceId);
+			}
+
 			Wedge.currentWedge = null;
 			// remove last measure if empty
 			if (measure != null && measure.isEmpty()) {
@@ -178,6 +289,9 @@ public class Nwc2MusicXML implements IConstants {
 					staff = new Staff();
 					currentStaffId++;
 
+					// track measure number for labeling endings
+					measureId = 0;
+					
 					measure = new Measure();
 					staff.addMeasure(measure);
 					p = new Part();
@@ -485,6 +599,10 @@ public class Nwc2MusicXML implements IConstants {
 					measure.addElement(note, voiceId);
 				} else if (type.compareTo("Bar") == 0) {
 					Measure newMeasure;
+
+					// track measure numbers to label endings
+					measureId++;
+					
 					if (!init()) {
 						if (staff.measures.size() == 1) {
 							// maybe it's first barline
@@ -503,6 +621,16 @@ public class Nwc2MusicXML implements IConstants {
 						}
 					} else {
 						newMeasure = measure;
+					}
+					
+					// check whether an ending needs to be closed here
+					String endingToClose = endingSet.getEnding(currentStaffId, measureId);
+					if (endingToClose.compareTo("") != 0) {
+						Ending ending = new Ending();
+						ending.number = endingSet.getEndingNumber(currentStaffId, measureId);
+						ending.type = endingSet.getEndingType(currentStaffId, measureId);
+						// deliberately on measure (last measure) not newMeasure
+						measure.addElement(ending, voiceId);
 					}
 					for (int i = 2; i < sArray.length; i++) {
 						sA = sArray[i];
@@ -523,16 +651,27 @@ public class Nwc2MusicXML implements IConstants {
 								measure.rightBarType = "light-heavy";
 								measure.rightRepeat = true;
 							} else if ("LocalRepeatOpen".compareTo(sArray2[1]) == 0) {
-								newMeasure.leftBarType = "light-light";
+								//newMeasure.leftBarType = "light-light";
+								newMeasure.leftBarType = "heavy-light";
+								// neither Sibelius or MuseScore recognise a light-light repeat bar
+								// only heavy-light - and with light-light the repeat times parameter is ignored
+								// so change to heavy-light
 								newMeasure.leftRepeat = true;
 							} else if ("LocalRepeatClose".compareTo(sArray2[1]) == 0) {
-								measure.rightBarType = "light-light";
+								//measure.rightBarType = "light-light";
+								measure.rightBarType = "light-heavy";
+								// possible adjustment - neither Sibelius or MuseScore recognise a light-light repeat bar
+								// only heavy-light - and with light-light the repeat times parameter is ignored
+								// so change to heavy-light
 								measure.rightRepeat = true;
 							} else if ("SectionOpen".compareTo(sArray2[1]) == 0) {
 								newMeasure.leftBarType = "heavy-light";
 							} else if ("SectionClose".compareTo(sArray2[1]) == 0) {
 								measure.rightBarType = "light-heavy";
 							}
+						} else if (sA.startsWith("Repeat")) {
+							// NWC only supports this for LocalRepeatClose
+							measure.repeatTimes = sA.split(":")[1];
 						}
 					}
 					measure = newMeasure;
@@ -590,6 +729,47 @@ public class Nwc2MusicXML implements IConstants {
 
 						}
 					}
+				} else if (type.compareTo("Flow") == 0) {
+					init();
+					for (int i = 2; i < sArray.length; i++) {
+						sA = sArray[i];
+						if (sA.contains("Style")) {
+							sArray2 = sA.split(":");
+							Flow flow = new Flow();
+							flow.flow = sArray2[1];
+							measure.addElement(flow, voiceId);
+						}
+					}
+				} else if (type.compareTo("Ending") == 0) {
+					init();
+					for (int i = 2; i < sArray.length; i++) {
+						sA = sArray[i];
+						if (sA.contains("Endings")) {
+							sArray2 = sA.split(":");
+							Ending ending = new Ending();
+							ending.number = sArray2[1];
+							ending.type = "start"; // NWC doesn't track multi-bar
+							measure.addElement(ending, voiceId);
+						}
+					}
+				} else if (type.compareTo("TempoVariance") == 0) {
+					init();
+					for (int i = 2; i < sArray.length; i++) {
+						sA = sArray[i];
+						if (sA.contains("Style")) {
+							sArray2 = sA.split(":");
+							if ((sArray2[1].compareTo("Fermata") == 0) || (sArray2[1].compareTo("Breath Mark") == 0)) {
+								TempoVariance tempoVariance = new TempoVariance();
+								tempoVariance.type = sArray2[1];
+								measure.addElement(tempoVariance, voiceId);
+							} else {
+								// these are Tempo Variance directions
+								TempoVariance tempoVariance = new TempoVariance();
+								tempoVariance.type = sArray2[1];
+								measure.addElement(tempoVariance,  voiceId);
+							}
+						}
+					}					
 				}
 
 			}
@@ -765,7 +945,13 @@ public class Nwc2MusicXML implements IConstants {
 										.createElement(BAR_STYLE_TAG);
 								barStyleEl.appendChild(doc
 										.createTextNode(m0.leftBarType));
-								barLineEl.appendChild(barStyleEl);
+								// Check whether ending tag of barline has already been created, if so add before
+								Node testEnding = barLineEl.getFirstChild();
+								if (testEnding != null && (testEnding.getNodeName().compareTo(BAR_STYLE_TAG) != 0)) {
+									barLineEl.insertBefore(barStyleEl, testEnding);
+								} else {
+									barLineEl.appendChild(barStyleEl);									
+								}
 								if (m0.leftRepeat) {
 									Element repeatElement = doc
 											.createElement(REPEAT_TAG);
@@ -780,6 +966,12 @@ public class Nwc2MusicXML implements IConstants {
 						int backupStaff = 0;
 						int backupVoice = 0;
 						for (Staff staff : part.staves) {
+							// allow graceful handling of staves with different numbers of measures - without this check
+							// get ArrayList.rangeCheck exception below on staff.measures.get(mId)
+							// this will produce an xml file with fewer bars on subsequent stave(s) than the first stave
+							// but better that than for the programme to crash with an Exception
+							if (mId >= staff.measures.size()) { break; }
+							
 							boolean addedNote = false;
 							int[] noteKeys = staff.transformKeyListForTie();
 							// slurStarted = false;
@@ -812,8 +1004,10 @@ public class Nwc2MusicXML implements IConstants {
 									backupVoice = 0;
 								}
 								ArrayList<IElement> v = m.voices.get(voiceId);
+								Element carriedNotationsEl = null;
 
 								for (IElement element : v) {
+									// some directions require notation to be added to the next note - this object holds the notation
 									if (element instanceof Clef) {
 										Clef clef = (Clef) element;
 										staff.currentClef = clef;
@@ -876,8 +1070,7 @@ public class Nwc2MusicXML implements IConstants {
 										} else {
 											// append to the existing attribute
 											// element
-											if (attributesEl != null)
-												appendTo(attributesEl, key, doc);
+											appendTo(attributesEl, key, doc);
 										}
 										staff.currentKey = key;
 
@@ -885,6 +1078,36 @@ public class Nwc2MusicXML implements IConstants {
 										Element el = ((Wedge) element)
 												.toElement(doc);
 										measureEl.appendChild(el);
+									} else if (element instanceof TempoVariance) {
+										TempoVariance tempoVariance = (TempoVariance) element;
+										// both Fermata and Breath Mark apply to the following note
+										carriedNotationsEl = doc.createElement(NOTATIONS_TAG);
+										if ((tempoVariance.type.compareTo("Breath Mark") == 0)) {
+											Element articulationsEl = doc.createElement(ARTICULATIONS_TAG);
+											Element breathMarkEl = doc.createElement(BREATH_MARK_TAG);
+											articulationsEl.appendChild(breathMarkEl);
+											carriedNotationsEl.appendChild(articulationsEl);
+											// this element is picked up in Note later on
+										} else if ((tempoVariance.type.compareTo("Fermata") == 0)) {
+											Element fermataEl = doc.createElement(FERMATA_TAG);
+											carriedNotationsEl.appendChild(fermataEl);
+											// this element is picked up in Note later on
+										} else {
+											Element directionEl = doc
+													.createElement(DIRECTION_TAG);
+											Element directionTypeEl = doc
+													.createElement(DIRECTIONTYPE_TAG);
+											// haven't pulled any placement through - but could
+											//directionEl.setAttribute(PLACEMENT_ATTRIBUTE, tempo.getPlacement());
+											Element wordsEl = doc
+													.createElement(WORDS_TAG);
+											wordsEl.appendChild(doc
+													.createTextNode(tempoVariance.getTempoVariance()));
+											directionTypeEl.appendChild(wordsEl);
+											directionEl
+													.appendChild(directionTypeEl);
+											measureEl.appendChild(directionEl);
+										}
 									} else if (element instanceof Note) {
 										if (attributesEl == null && mId == 0) {
 											attributesEl = createMeasureGeneralAttributes(
@@ -906,6 +1129,10 @@ public class Nwc2MusicXML implements IConstants {
 										Element noteEl = convert(doc, note,
 												stId, voiceId, staff, noteKeys,
 												fullRestDuration);
+										if (carriedNotationsEl != null) {
+											noteEl.appendChild(carriedNotationsEl);
+											carriedNotationsEl = null;
+										}
 										measureEl.appendChild(noteEl);
 
 										if (note.firstInChord)
@@ -1006,6 +1233,99 @@ public class Nwc2MusicXML implements IConstants {
 											directionEl.appendChild(staffEl);
 										}
 										measureEl.appendChild(directionEl);
+									} else if (element instanceof Flow) {
+										Flow flow = (Flow) element;
+										Element directionEl = doc.createElement(DIRECTION_TAG);
+										Element directionTypeEl = doc.createElement(DIRECTIONTYPE_TAG);
+										Element flowEl;
+										if (flow.getWords() != "") {
+											flowEl = doc.createElement(WORDS_TAG);
+											flowEl.appendChild(doc.createTextNode(flow.getWords()));
+										} else if (flow.getTag() != "") {
+											flowEl = doc.createElement(flow.getTag());
+										} else {
+											// can't happen the way Flow is set up
+											flowEl = doc.createElement("dummy");
+										}
+										directionTypeEl.appendChild(flowEl);
+										directionEl.appendChild(directionTypeEl);
+										Element voiceEl = doc.createElement(VOICE_TAG);
+										voiceEl.appendChild(doc.createTextNode(String.valueOf(voiceId)));
+										directionEl.appendChild(voiceEl);
+										Element staffEl = doc.createElement(STAFF_TAG);
+										staffEl.appendChild(doc.createTextNode(new Integer(backupStaff+1).toString()));
+										directionEl.appendChild(staffEl);
+
+										if (flow.getSoundNodeNum() != "") {
+											Element soundEl = doc.createElement(SOUND_TAG);
+											soundEl.setAttribute(flow.getSoundNodeNum(), String.valueOf(mId));
+											directionEl.appendChild(soundEl);
+										}
+										if (flow.getSoundNodeYes() != "") {
+											Element soundEl = doc.createElement(SOUND_TAG);
+											soundEl.setAttribute(flow.getSoundNodeYes(), "yes");
+											directionEl.appendChild(soundEl);
+										}
+																				
+										measureEl.appendChild(directionEl);							
+									} else if (element instanceof Ending) {
+										Ending ending = (Ending) element;
+										boolean leftBarlineSought = false;
+										if (ending.type.compareTo("start") == 0) {
+											leftBarlineSought = true;
+										}
+										// check if last ending in a set - then need to discontinue, not stop
+										if (ending.lastInSet && (ending.type.compareTo("stop") == 0)) {
+											ending.type = "discontinue";
+										}
+										// create the Ending Element that we'll add when we work out where
+										Element endingEl = doc.createElement(ENDING_TAG);
+										endingEl.setAttribute(NUMBER_ATTRIBUTE, ending.number);
+										endingEl.setAttribute(TYPE_ATTRIBUTE, ending.type);
+
+										// Need to work out if the barline we need is already there or whether we need to create it
+										NodeList barlineEls = measureEl
+												.getElementsByTagName(BAR_LINE_TAG);
+										Element leftBarlineEl = null;
+										Element rightBarlineEl = null;
+										// if there are barlines
+										if (barlineEls.getLength() > 0) {
+											for (int i = 0; i < barlineEls.getLength(); i++) {
+												Node barline = barlineEls.item(i);
+												Node attrLocation = barline.getAttributes()
+														.getNamedItem(LOCATION_ATTRIBUTE);
+												if (attrLocation != null) {
+													if (attrLocation.getTextContent()
+																.compareTo("right") == 0 && !leftBarlineSought) {
+														// right barline - what we need for stop and discontinue types
+														rightBarlineEl = (Element)barline;
+														break;
+													} else if (attrLocation.getTextContent()
+																.compareTo("left") == 0 && leftBarlineSought) {
+														// left barline - what we need for start type
+														leftBarlineEl = (Element)barline;
+														break;
+													}
+												}
+											}
+										}
+										// if we haven't found an existing barline element, then create one and add it to the measure
+										if (leftBarlineSought && leftBarlineEl == null) {
+											leftBarlineEl = doc.createElement(BAR_LINE_TAG);
+											leftBarlineEl.setAttribute(LOCATION_ATTRIBUTE, "left");
+											// will this add it in the wrong place - given it's already been worked through?
+											measureEl.appendChild(leftBarlineEl);
+										} else if (!leftBarlineSought && rightBarlineEl == null) {
+											rightBarlineEl = doc.createElement(BAR_LINE_TAG);
+											rightBarlineEl.setAttribute(LOCATION_ATTRIBUTE, "right");
+											measureEl.appendChild(rightBarlineEl);
+										}
+										// now add the Element ending to the barline
+										if (leftBarlineEl != null) {
+											leftBarlineEl.appendChild(endingEl);
+										} else if (rightBarlineEl != null) {
+											rightBarlineEl.appendChild(endingEl);
+										}																
 									}
 								}
 							}
@@ -1018,23 +1338,74 @@ public class Nwc2MusicXML implements IConstants {
 						if (m0.rightBarType != null) {
 							if (m0.rightBarType.compareTo("light-light") == 0
 									|| m0.rightBarType.compareTo("light-heavy") == 0) {
-								Element barLineEl = doc
-										.createElement(BAR_LINE_TAG);
-								barLineEl.setAttribute(LOCATION_ATTRIBUTE,
-										"right");
+								// because an ending (above) may already have created the right barline - need loop to check
+								NodeList barlineEls = measureEl
+										.getElementsByTagName(BAR_LINE_TAG);
+								Element barlineEl = null;
+								boolean alreadyInMeasure = false;
+								// find right barline, if any capture the reference
+								if (barlineEls.getLength() > 0) {
+									for (int i = 0; i < barlineEls.getLength(); i++) {
+										Node barline = barlineEls.item(i);
+										Node attrLocation = barline.getAttributes()
+												.getNamedItem(LOCATION_ATTRIBUTE);
+										if (attrLocation != null
+												&& attrLocation.getTextContent()
+														.compareTo("right") == 0) {
+											barlineEl = (Element) barline;
+											alreadyInMeasure = true;
+											break;
+										}
+									}
+								}
+								// didn't find one, so create right barline
+								if (barlineEl == null) {
+									barlineEl = doc
+											.createElement(BAR_LINE_TAG);
+									barlineEl.setAttribute(LOCATION_ATTRIBUTE,
+											"right");
+								}
 								Element barStyleEl = doc
 										.createElement(BAR_STYLE_TAG);
 								barStyleEl.appendChild(doc
 										.createTextNode(m0.rightBarType));
-								barLineEl.appendChild(barStyleEl);
+								// Check whether ending tag of barline has already been created, if so add before
+								Node testEnding = barlineEl.getFirstChild();
+								if (testEnding != null && (testEnding.getNodeName().compareTo(BAR_STYLE_TAG) != 0)) {
+									barlineEl.insertBefore(barStyleEl, testEnding);
+								} else {
+									barlineEl.appendChild(barStyleEl);									
+								}
 								if (m0.rightRepeat) {
 									Element repeatElement = doc
 											.createElement(REPEAT_TAG);
 									repeatElement.setAttribute(
 											DIRECTION_ATTRIBUTE, "backward");
-									barLineEl.appendChild(repeatElement);
+									// new repeats insert
+									if (m0.repeatTimes != null) {
+										repeatElement.setAttribute(REPEAT_TIMES_TAG, m0.repeatTimes);
+									}
+									barlineEl.appendChild(repeatElement);
+									// add words direction to play n times in before barline
+									if (m0.repeatTimes != null) {
+										Element directionEl = doc
+											.createElement(DIRECTION_TAG);
+										Element directionTypeEl = doc
+											.createElement(DIRECTIONTYPE_TAG);
+										Element wordsEl = doc
+											.createElement(WORDS_TAG);
+										wordsEl.appendChild(doc
+											.createTextNode("Play " + m0.repeatTimes + " times"));
+										directionTypeEl.appendChild(wordsEl);
+										directionEl
+											.appendChild(directionTypeEl);
+										measureEl.appendChild(directionEl);
+									}
 								}
-								measureEl.appendChild(barLineEl);
+								if (!alreadyInMeasure) {
+									// don't need to add to measure, because it was already there
+									measureEl.appendChild(barlineEl);								
+								}
 							}
 						}
 						if (mId == 0 && attributesEl != null && part.trans != 0) {
@@ -1048,6 +1419,7 @@ public class Nwc2MusicXML implements IConstants {
 							attributesEl.appendChild(transposeEl);
 						}
 						if (mId == measureCount - 1) {
+							// final barline
 							NodeList barlineEls = measureEl
 									.getElementsByTagName(BAR_LINE_TAG);
 							Node barlineEl = null;
@@ -1065,6 +1437,7 @@ public class Nwc2MusicXML implements IConstants {
 									}
 								}
 							}
+							// didn't find one, so create right barline
 							if (barlineEl == null) {
 								Element barLineEl = doc
 										.createElement(BAR_LINE_TAG);
@@ -1074,12 +1447,22 @@ public class Nwc2MusicXML implements IConstants {
 										.createElement(BAR_STYLE_TAG);
 								barStyleEl.appendChild(doc
 										.createTextNode(p.barLineStyle));
-								barLineEl.appendChild(barStyleEl);
+								// Check whether ending tag of barline has already been created, if so add before
+								Node testEnding = barLineEl.getFirstChild();
+								if (testEnding != null && (testEnding.getNodeName().compareTo(BAR_STYLE_TAG) != 0)) {
+									barLineEl.insertBefore(barStyleEl, testEnding);
+								} else {
+									barLineEl.appendChild(barStyleEl);									
+								}
 								if (p.endRepeat) {
 									Element repeatElement = doc
 											.createElement(REPEAT_TAG);
 									repeatElement.setAttribute(
 											DIRECTION_ATTRIBUTE, "backward");
+// new repeats insert
+									if (m0.repeatTimes != null) {
+										repeatElement.setAttribute(REPEAT_TIMES_TAG, m0.repeatTimes);
+									}
 									barLineEl.appendChild(repeatElement);
 								}
 								measureEl.appendChild(barLineEl);
@@ -1483,7 +1866,11 @@ public class Nwc2MusicXML implements IConstants {
 	protected void appendTo(Element attributeEl, TimeSig timeSig, Document doc) {
 		NodeList stavesEl = attributeEl.getElementsByTagName(STAVES_TAG);
 		if (stavesEl.getLength() > 0) {
-			attributeEl.insertBefore(convert(timeSig, doc), stavesEl.item(0));
+			// if there is a stave_tag then this is a multiple-stave part and need to take care not to add TimeSig twice
+			NodeList prevTimeSigEl = attributeEl.getElementsByTagName(TIME_TAG);
+			if (prevTimeSigEl.getLength() == 0) {
+				attributeEl.insertBefore(convert(timeSig, doc), stavesEl.item(0));
+			}
 		} else {
 			NodeList clef = attributeEl.getElementsByTagName(CLEF_TAG);
 			if (clef.getLength() > 0) {
@@ -1497,7 +1884,11 @@ public class Nwc2MusicXML implements IConstants {
 	protected void appendTo(Element attributeEl, Key key, Document doc) {
 		NodeList stavesEl = attributeEl.getElementsByTagName(STAVES_TAG);
 		if (stavesEl.getLength() > 0) {
-			attributeEl.insertBefore(convert(key, doc), stavesEl.item(0));
+			// if there is a stave_tag then this is a multiple-stave part and need to take care not to add Key twice
+			NodeList prevKeyEl = attributeEl.getElementsByTagName(KEY_TAG);
+			if (prevKeyEl.getLength() == 0) {
+				attributeEl.insertBefore(convert(key, doc), stavesEl.item(0));
+			}
 		} else {
 			NodeList clef = attributeEl.getElementsByTagName(CLEF_TAG);
 			if (clef.getLength() > 0) {
@@ -1561,7 +1952,7 @@ public class Nwc2MusicXML implements IConstants {
 	public static void main(String[] args) {
 		if ((args.length == 1) && (args[0].equalsIgnoreCase("-ut"))) {
 			Nwc2MusicXML converter = new Nwc2MusicXML();
-			ConversionResult result = converter.convert(System.in);
+			ConversionResult result = converter.convert(System.in, System.in);
 			String title = result.getTitle();
 			if (converter.write(System.out) == -1) {
 				System.err.println("Error while converting [" + title + "]");
@@ -1570,7 +1961,7 @@ public class Nwc2MusicXML implements IConstants {
 			System.exit(99);
 		} else if ((args.length == 1) && (args[0].equalsIgnoreCase("-utsave"))) {
 			Nwc2MusicXML converter = new Nwc2MusicXML();
-			ConversionResult result = converter.convert(System.in);
+			ConversionResult result = converter.convert(System.in, System.in);
 			String title = result.getTitle();
 			JFileChooser fc = new JFileChooser();
 			fc.setFileFilter(new FileNameExtensionFilter("MusicXML", "xml"));
@@ -1600,23 +1991,28 @@ public class Nwc2MusicXML implements IConstants {
 			File out = new File(args[1]);
 			if (in.exists()) {
 				try {
-					FileInputStream finStream = new FileInputStream(in);
-					InputStream inStream = finStream;
+					FileInputStream finStream1 = new FileInputStream(in);
+					InputStream inStream1 = finStream1;
+					FileInputStream finStream2 = new FileInputStream(in);
+					InputStream inStream2 = finStream2;
 					
 					// check for a [NWZ] header, which indicates that this is a 2.75 NWC file
 					// that contains deflated nwctxt 
 					byte[] refNWZ = {'[','N','W','Z',']',0};
 					byte[] hdrNWZ = new byte[6];
 					boolean compressed = false;
-					if ((inStream.read(hdrNWZ) == 6) && Arrays.equals(hdrNWZ,refNWZ)) {
-						inStream = new InflaterInputStream(finStream);
+					if ((inStream1.read(hdrNWZ) == 6) && Arrays.equals(hdrNWZ,refNWZ)) {
+						inStream1 = new InflaterInputStream(finStream1);
+						inStream2 = new InflaterInputStream(finStream2);
 						compressed = true;
 					}
-					else 
-						finStream.getChannel().position(0);
+					else {
+						finStream1.getChannel().position(0);
+						finStream2.getChannel().position(0);
+					}
 					
 					Nwc2MusicXML converter = new Nwc2MusicXML();
-					ConversionResult result = converter.convert(inStream);
+					ConversionResult result = converter.convert(inStream1, inStream2);
 					String title = result.getTitle();
 					System.err.println("Converting... title: [" + title + "]");
 					if (!result.isError()) {
@@ -1647,7 +2043,7 @@ public class Nwc2MusicXML implements IConstants {
 
 		} else {
 			System.err
-					.println("usage : java -cp . nwc2musicxml.jar fr.lasconic.nwc2musicxml.Nwc2MusicXML file.nwctxt myfile.xml");
+					.println("usage : java -cp . nwc2musicxml.jar fr.lasconic.convert.nwc2musicxml.Nwc2MusicXML file.nwctxt myfile.xml");
 			
 		}
 	}

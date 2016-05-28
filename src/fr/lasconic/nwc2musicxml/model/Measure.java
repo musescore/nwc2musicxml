@@ -11,6 +11,8 @@ public class Measure {
 	public String rightBarType;
 	public boolean leftRepeat;
 	public boolean rightRepeat;
+	public String repeatTimes;
+	public String flowType;
 	
 	public boolean wholeRest; // if we got a whole rest in the measure
 	public int notesCount;
@@ -28,6 +30,8 @@ public class Measure {
 		rightRepeat = false;
 		wholeRest = false;
 		notesCount = 0;
+		flowType = null;
+		repeatTimes = null;
 	}
 
 	public boolean isFullRest(){

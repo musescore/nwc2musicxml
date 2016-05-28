@@ -1,0 +1,46 @@
+!NoteWorthyComposer(2.0)
+|SongInfo|Title:"Piano Template"|Author:"<Name>"|Lyricist:""|Copyright1:"Copyright © <Year> by <Name>"|Copyright2:"All Rights Reserved"
+|PgSetup|StaffSize:26|Zoom:4|TitlePage:Y|JustifyVertically:Y|ExtendLastSystem:N|DurationPadding:Y|PageNumbers:0|StaffLabels:None|BarNumbers:Plain|StartingBar:1|AllowLayering:N
+|Font|Style:Staff Italic|Typeface:"Times New Roman"|Size:16|Bold:Y|Italic:Y|CharSet:0
+|Font|Style:Staff Bold|Typeface:"Times New Roman"|Size:13|Bold:Y|Italic:N|CharSet:0
+|Font|Style:Staff Lyric|Typeface:"Times New Roman"|Size:12|Bold:N|Italic:N|CharSet:0
+|Font|Style:Page Title Text|Typeface:"Times New Roman"|Size:24|Bold:Y|Italic:N|CharSet:0
+|Font|Style:Page Text|Typeface:"Times New Roman"|Size:12|Bold:N|Italic:N|CharSet:0
+|Font|Style:Page Small Text|Typeface:"Times New Roman"|Size:8|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 1|Typeface:"Times New Roman"|Size:13|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 2|Typeface:"Times New Roman"|Size:13|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 3|Typeface:"Times New Roman"|Size:13|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 4|Typeface:"Times New Roman"|Size:13|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 5|Typeface:"Times New Roman"|Size:8|Bold:N|Italic:N|CharSet:0
+|Font|Style:User 6|Typeface:"Times New Roman"|Size:8|Bold:N|Italic:N|CharSet:0
+|PgMargins|Left:2.54|Top:2.54|Right:2.54|Bottom:2.54|Mirror:N
+|AddStaff|Name:"Right Hand"|Label:"Piano"|Group:"Standard"
+|StaffProperties|EndingBar:Section Close|Visible:Y|BoundaryTop:18|BoundaryBottom:10|Lines:5|Style:Upper Grand Staff|Layer:N|Color:Default
+|StaffProperties|Muted:N|Volume:127|StereoPan:64|Device:0|Channel:1
+|StaffInstrument|Patch:0|Trans:0|DynVel:10,30,45,60,75,92,108,127
+|Clef|Type:Treble
+|TempoVariance|Style:Fermata|Pause:0|Pos:9|Justify:Center|Placement:AtNextNote
+|TimeSig|Signature:4/4
+|Note|Dur:4th|Pos:-2
+|TempoVariance|Style:Accelerando|Pos:10
+|Note|Dur:4th|Pos:0
+|TempoVariance|Style:Allargando|Pos:15
+|Note|Dur:4th|Pos:0
+|TempoVariance|Style:Ritenuto|Pos:10
+|Note|Dur:4th|Pos:0
+|Bar
+|TempoVariance|Style:Ritardando|Pos:15
+|Note|Dur:4th|Pos:0
+|TempoVariance|Style:Rubato|Pos:10
+|Note|Dur:4th|Pos:0
+|TempoVariance|Style:Stringendo|Pos:15
+|Note|Dur:4th|Pos:0
+|Note|Dur:4th|Pos:-3
+|Bar
+|TempoVariance|Style:Fermata|Pause:0|Pos:9|Justify:Center|Placement:AtNextNote
+|Note|Dur:Whole|Pos:0
+|Bar
+|Note|Dur:4th|Pos:0
+|TempoVariance|Style:Breath Mark|Pause:0|Pos:8
+|Note|Dur:4th|Pos:0
+!NoteWorthyComposer-End
