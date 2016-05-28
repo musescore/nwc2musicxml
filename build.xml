@@ -63,7 +63,7 @@
 
 	<target name="test.java" depends="build.java.src, build.java.tests">
 		<mkdir dir="${java.test.reports.path}" />
-		<junit haltonfailure="no" printsummary="true" fork="true" dir="${basedir}">
+		<junit haltonfailure="true" printsummary="true" fork="true" dir="${basedir}">
 			<classpath>
 				<path refid="NwcTxt2MusicXML.classpath" />
 				<pathelement location="${java.src.build.path}" />
