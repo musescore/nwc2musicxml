@@ -1,4 +1,5 @@
-language:java
+language: java
 
 script:
   - ant test.java
+
