@@ -1,34 +1,85 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project basedir="." default="build" name="NwcTxt2MusicXML">
-	<property name="Nwc2MusicXMLApp.location" value="../Nwc2MusicXMLApp" />
-	<property name="ECLIPSE_HOME" value="../../" />
+
 	<property name="debuglevel" value="source,lines,vars" />
 	<property name="target" value="1.6" />
 	<property name="source" value="1.6" />
-	<property name="outdir" value="${Nwc2MusicXMLApp.location}/build" />
+	<property name="outdir" value="build" />
+	<property name="java.test.reports.path" value="tests-reports" />
+	<property name="java.src.build.path" value="bin" />
+	<property name="java.test.build.path" value="bin-tests" />
+
+
 	<path id="NwcTxt2MusicXML.classpath">
 		<pathelement location="bin" />
 	</path>
+	
+	<path id="NwcTxt2MusicXML.classpath.tests">
+		<fileset dir="lib">
+		     <include name="**/*.jar"/>
+		</fileset>
+	</path>
+
 	<target name="init">
-		<mkdir dir="bin" />
+		<mkdir dir="${java.src.build.path}" />
 		<copy includeemptydirs="false" todir="bin">
 			<fileset dir="src" excludes="**/*.launch, **/*.java" />
 		</copy>
 	</target>
+
 	<target name="clean">
-		<delete dir="bin" />
+		<delete dir="${java.src.build.path}" />
+		<delete dir="${java.test.build.path}" />
 	</target>
+
 	<target depends="clean" name="cleanall" />
-	<target depends="build-project" name="build" />
-	<target depends="init" name="build-project">
+	<target depends="build.java.src" name="build" />
+
+	<target depends="init" name="build.java.src">
 		<echo message="${ant.project.name}: ${ant.file}" />
-		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+		<javac debug="true" debuglevel="${debuglevel}" destdir="${java.src.build.path}" source="${source}" target="${target}">
 			<src path="src" />
 			<classpath refid="NwcTxt2MusicXML.classpath" />
 		</javac>
 	</target>
-	<target depends="build-project" name="package">
+
+	<target depends="init" name="build.java.tests">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<mkdir dir="${java.test.build.path}" />
+		<javac debug="true" debuglevel="${debuglevel}" destdir="${java.test.build.path}" source="${source}" target="${target}">
+			<src path="tests" />
+			<classpath>
+				<path refid="NwcTxt2MusicXML.classpath" />
+				<pathelement location="${java.src.build.path}" />
+				<path refid="NwcTxt2MusicXML.classpath.tests" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target depends="build.java.src" name="package">
 		<jar destfile="${outdir}/${ant.project.name}.jar" basedir="bin">
 		</jar>
+	</target>
+
+	<target name="test.java" depends="build.java.src, build.java.tests">
+		<mkdir dir="${java.test.reports.path}" />
+		<junit haltonfailure="no" printsummary="true" fork="true" dir="${basedir}">
+			<classpath>
+				<path refid="NwcTxt2MusicXML.classpath" />
+				<pathelement location="${java.src.build.path}" />
+				<pathelement location="${java.test.build.path}" />
+				<path refid="NwcTxt2MusicXML.classpath.tests" />
+			</classpath>
+			<!-- add to see errors on console while running junit tests.-->
+	      <formatter type="brief" usefile="false" />    
+	      
+			<formatter type="xml" />
+			<batchtest fork="yes" todir="${java.test.reports.path}">
+				<fileset dir="${java.test.build.path}/">
+					<include name="**/*Test*.class" />
+					<exclude name="**/*$*.class" />
+				</fileset>
+			</batchtest>
+		</junit>
 	</target>
 </project>
