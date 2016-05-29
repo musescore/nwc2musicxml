@@ -815,7 +815,7 @@ public class Nwc2MusicXML implements IConstants {
 				// System.err.println( staff.measures.size() + ": " );
 				for (IElement e : measure.voices.get(voiceId)) {
 					if (e instanceof Wedge) {
-						System.err.println(((Wedge) e).type);
+						// System.err.println(((Wedge) e).type);
 					} else {
 						// System.err.println( "something" );
 					}
