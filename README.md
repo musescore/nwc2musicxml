@@ -21,12 +21,12 @@ Features
 * Dynamics (mf, p ...) & custom texts
 * Midi info for staff
 * Beaming
+* Flow control : Coda, Segno, ...
 
 
 Not yet supported
 ---
 * Chord symbols, grace notes
-* Flow control : Coda, Segno, ...
 * Dynamic variation
 * Layout information
 
