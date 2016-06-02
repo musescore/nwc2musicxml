@@ -61,6 +61,11 @@
 		</jar>
 	</target>
 
+	<target depends="build.java.src" name="package.nwc.usertool">
+		<jar destfile="${outdir}/nwc2musicxml.jar" manifest="nwcut.mf" basedir="bin">
+		</jar>
+	</target>
+
 	<target name="test.java" depends="build.java.src, build.java.tests">
 		<mkdir dir="${java.test.reports.path}" />
 		<junit haltonfailure="true" printsummary="true" fork="true" dir="${basedir}">
