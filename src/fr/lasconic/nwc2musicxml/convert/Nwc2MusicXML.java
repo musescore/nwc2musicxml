@@ -17,6 +17,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.zip.InflaterInputStream;
@@ -59,7 +61,7 @@ import fr.lasconic.nwc2musicxml.model.Wedge;
 
 public class Nwc2MusicXML implements IConstants {
 
-	private boolean first;
+	private double nwctxtVersion; 
 
 	private Score score;
 	private Staff staff;
@@ -70,7 +72,8 @@ public class Nwc2MusicXML implements IConstants {
 	private int measureId; // used for initial scan for endings
 
 	public Nwc2MusicXML() {
-		first = false;
+		// when nwctxtVersion < 1, the nwctxt header has not yet been detected
+		nwctxtVersion = 0.0;
 		currentStaffId = 0;
 	}
 
@@ -203,12 +206,22 @@ public class Nwc2MusicXML implements IConstants {
 			return ConversionResult.CONTINUE;
 		}
 
-		if (!first && line.startsWith("[NoteWorthy ArtWare]") && !line.endsWith("!NoteWorthyComposer(2.75)")) {
+		if ((nwctxtVersion < 1) && line.startsWith("[NoteWorthy ArtWare]") && !line.contains("!NoteWorthyComposer(")) {
 			return ConversionResult.ERROR_OLD_VERSION;
 		}
 
-		if (!first && line.contains("!NoteWorthyComposer(2")) {
-			first = true;
+		if ((nwctxtVersion < 1) && line.contains("!NoteWorthyComposer(")) {
+			Pattern versionPattern = Pattern.compile("!NoteWorthyComposer\\(([0-9]*\\.?[0-9]*)");
+	        Matcher versionMatcher = versionPattern.matcher(line);
+	        
+	        if (versionMatcher.find()) {
+	        	nwctxtVersion = Double.parseDouble(versionMatcher.group(1));
+	        } else {
+	        	// set as default of version 99...indicates the header has been found
+	        	// but the version is unknown
+	        	nwctxtVersion = 9999.9999;
+	        }
+
 			return ConversionResult.CONTINUE;
 		}
 
