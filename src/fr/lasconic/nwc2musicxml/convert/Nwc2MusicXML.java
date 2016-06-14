@@ -637,14 +637,6 @@ public class Nwc2MusicXML implements IConstants {
 							if (sArray2.length == 2) {
 								otherVoiceStem = sA.split("=")[1];								
 							}
-							//String otherStem = null;
-							//if (stemActive.compareTo("Down") == 0) {
-								//otherStem = "Stem=Up";
-								//otherStem = "Stem=Down";
-							//} else if (stemActive.compareTo("Up") == 0) {
-								//otherStem = "Stem=Down";
-								//otherStem = "Stem=Up";
-							//}
 							if (chordHasTwoVoices && otherVoiceStem != null) {
 								for (Note note : notes) {
 									note.setOpts(otherVoiceStem);

@@ -10,7 +10,7 @@
 &lt;Copyright2&gt;</rights>
     <encoding>
       <software>NWC2MusicXML</software>
-      <encoding-date>2016-05-15</encoding-date>
+      <encoding-date>2016-06-14</encoding-date>
     </encoding>
   </identification>
   <part-list>
@@ -1169,10 +1169,37 @@
       <note>
         <pitch>
           <step>E</step>
+          <octave>5</octave>
+        </pitch>
+        <duration>420</duration>
+        <voice>1</voice>
+        <type>eighth</type>
+        <dot/>
+        <dot/>
+        <notehead>x</notehead>
+        <staff>1</staff>
+      </note>
+      <note>
+        <pitch>
+          <step>B</step>
+          <octave>4</octave>
+        </pitch>
+        <duration>720</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <dot/>
+        <staff>1</staff>
+      </note>
+      <backup>
+        <duration>1140</duration>
+      </backup>
+      <note>
+        <pitch>
+          <step>E</step>
           <octave>4</octave>
         </pitch>
         <duration>240</duration>
-        <voice>1</voice>
+        <voice>2</voice>
         <type>eighth</type>
         <stem>down</stem>
         <staff>1</staff>
@@ -1185,7 +1212,7 @@
           <octave>4</octave>
         </pitch>
         <duration>240</duration>
-        <voice>1</voice>
+        <voice>2</voice>
         <type>eighth</type>
         <accidental>natural</accidental>
         <stem>down</stem>
@@ -1199,7 +1226,7 @@
           <octave>4</octave>
         </pitch>
         <duration>240</duration>
-        <voice>1</voice>
+        <voice>2</voice>
         <type>eighth</type>
         <accidental>flat</accidental>
         <stem>down</stem>
@@ -1213,7 +1240,7 @@
           <octave>4</octave>
         </pitch>
         <duration>240</duration>
-        <voice>1</voice>
+        <voice>2</voice>
         <type>eighth</type>
         <accidental>sharp</accidental>
         <stem>down</stem>
@@ -1227,7 +1254,7 @@
           <octave>4</octave>
         </pitch>
         <duration>240</duration>
-        <voice>1</voice>
+        <voice>2</voice>
         <type>eighth</type>
         <accidental>double-sharp</accidental>
         <stem>down</stem>
@@ -1241,7 +1268,7 @@
           <octave>5</octave>
         </pitch>
         <duration>240</duration>
-        <voice>1</voice>
+        <voice>2</voice>
         <type>eighth</type>
         <accidental>flat-flat</accidental>
         <stem>down</stem>
@@ -1254,42 +1281,14 @@
           <octave>5</octave>
         </pitch>
         <duration>240</duration>
-        <voice>1</voice>
+        <voice>2</voice>
         <type>eighth</type>
         <stem>down</stem>
         <notehead>x</notehead>
         <staff>1</staff>
       </note>
-      <note>
-        <pitch>
-          <step>B</step>
-          <alter>2</alter>
-          <octave>4</octave>
-        </pitch>
-        <duration>720</duration>
-        <voice>1</voice>
-        <type>quarter</type>
-        <dot/>
-        <staff>1</staff>
-      </note>
       <backup>
-        <duration>960</duration>
-      </backup>
-      <note>
-        <pitch>
-          <step>E</step>
-          <octave>5</octave>
-        </pitch>
-        <duration>420</duration>
-        <voice>2</voice>
-        <type>eighth</type>
-        <dot/>
-        <dot/>
-        <notehead>x</notehead>
-        <staff>1</staff>
-      </note>
-      <backup>
-        <duration>420</duration>
+        <duration>240</duration>
       </backup>
       <note>
         <pitch>
