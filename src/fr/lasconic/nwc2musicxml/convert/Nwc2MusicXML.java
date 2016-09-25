@@ -61,7 +61,7 @@ import fr.lasconic.nwc2musicxml.model.Wedge;
 
 public class Nwc2MusicXML implements IConstants {
 
-	private double nwctxtVersion; 
+	private double nwctxtVersion;
 
 	private Score score;
 	private Staff staff;
@@ -189,7 +189,7 @@ public class Nwc2MusicXML implements IConstants {
 		if (staff == null) {
 			p = new Part();
 			score.addPart(p);
-			currentStaffId = 1;
+			currentStaffId = 0;
 			staff = new Staff();
 			p.addStaff(staff);
 			currentStaffId++;
@@ -212,15 +212,16 @@ public class Nwc2MusicXML implements IConstants {
 
 		if ((nwctxtVersion < 1) && line.contains("!NoteWorthyComposer(")) {
 			Pattern versionPattern = Pattern.compile("!NoteWorthyComposer\\(([0-9]*\\.?[0-9]*)");
-	        Matcher versionMatcher = versionPattern.matcher(line);
-	        
-	        if (versionMatcher.find()) {
-	        	nwctxtVersion = Double.parseDouble(versionMatcher.group(1));
-	        } else {
-	        	// set as default of version 99...indicates the header has been found
-	        	// but the version is unknown
-	        	nwctxtVersion = 9999.9999;
-	        }
+			Matcher versionMatcher = versionPattern.matcher(line);
+
+			if (versionMatcher.find()) {
+				nwctxtVersion = Double.parseDouble(versionMatcher.group(1));
+			} else {
+				// set as default of version 99...indicates the header has been
+				// found
+				// but the version is unknown
+				nwctxtVersion = 9999.9999;
+			}
 
 			return ConversionResult.CONTINUE;
 		}
@@ -344,7 +345,8 @@ public class Nwc2MusicXML implements IConstants {
 				} else if (firstStem.compareTo("Down") == 0) {
 					line += "Up";
 				}
-				// this is a dummy tag to allow an opportunity to set stem when it isn't set in input
+				// this is a dummy tag to allow an opportunity to set stem when
+				// it isn't set in input
 			} else {
 				chordHasTwoVoices = false;
 			}
@@ -527,12 +529,24 @@ public class Nwc2MusicXML implements IConstants {
 						} else if (sA.contains("Opts")) {
 							sArray2 = sA.split(":");
 							note.setOpts(sArray2[1]);
-							optsArr = sArray2;
+							optsArr = sArray2[1].split(",");
 							// find cresc/dimin
 						}
 					}
-					Wedge.findWedges(optsArr, measure, voiceId);
-					measure.addElement(note, voiceId);
+					// if measure has voices already and stem Down, put it in
+					// voice 2
+					int voiceOffset = 0;
+					if (measure.hasVoices()) {
+						for (String s : optsArr) {
+							if (s.startsWith("Stem")) {
+								String[] sArray3 = s.split("=");
+								if (sArray3.length > 1 && sArray3[1].compareTo("Down") == 0)
+									voiceOffset = 1;
+							}
+						}
+					}
+					Wedge.findWedges(optsArr, measure, voiceId + voiceOffset);
+					measure.addElement(note, voiceId + voiceOffset);
 				} else if (type.compareTo("Chord") == 0 || type.compareTo("RestChord") == 0) { // Chord
 					init();
 					measure.notesCount++;
@@ -544,9 +558,10 @@ public class Nwc2MusicXML implements IConstants {
 					String[] optsArr = {};
 					for (int i = 2; i < sArray.length; i++) {
 						sA = sArray[i];
-						if (sA.contains("Opts")) {
+						if (sA.startsWith("Opts")) {
 							sArray2 = sA.split(":");
-							optsArr = sArray2;
+							if (sArray2.length > 1)
+								optsArr = sArray2[1].split(",");
 						}
 					}
 					// find cresc/dimin
@@ -558,8 +573,10 @@ public class Nwc2MusicXML implements IConstants {
 						sA = sArray[i];
 						if (sA.contains("Pos2")) {
 							// means there are 2 voices in the chord
-							// change required is to look at stem up/down - use up for voice 1 and down for voice 2
-							// easy for Pos2 but need to look ahead for Pos in case there is a Pos2
+							// change required is to look at stem up/down - use
+							// up for voice 1 and down for voice 2
+							// easy for Pos2 but need to look ahead for Pos in
+							// case there is a Pos2
 							pos2 = true;
 							sArray2 = sA.split(":");
 							String[] sArray3 = sArray2[1].split(",");
@@ -579,7 +596,7 @@ public class Nwc2MusicXML implements IConstants {
 								note.chord = chord;
 								if (j == 0) {
 									note.firstInChord = true;
-									if (measure.measureOffset > 0) {
+									if (measure.measureOffset > 0 && ((1 - voiceAdj) == 1)) {
 										measure.addElement(new Forward(measure.measureOffset), voiceId + 1 - voiceAdj);
 									}
 								}
@@ -591,29 +608,35 @@ public class Nwc2MusicXML implements IConstants {
 							dur2 = sArray2[1];
 						} else if (sA.contains("Pos")) {
 							pos1 = true;
-							// Stem if present is always on Pos (and Pos2 is the opposite stem)
+							// Stem if present is always on Pos (and Pos2 is the
+							// opposite stem)
 							for (int j = 0; j < optsArr.length; j++) {
 								sB = optsArr[j];
-								if (sB.contains("Stem")) {
+								if (sB.startsWith("Stem")) {
 									String[] sArray4 = sB.split("=");
 									if (chordHasTwoVoices) {
-										if(sArray4[1].compareTo("Up") == 0) {
-											// voiceAdj is used to flip the voice (which NWC notates as a combination of
+										if (sArray4.length > 1 && sArray4[1].compareTo("Up") == 0) {
+											// voiceAdj is used to flip the
+											// voice (which NWC notates as a
+											// combination of
 											// Stem and Pos/Pos2
 											voiceAdj = 0;
 										} else {
 											voiceAdj = 1;
 										}
 									} else {
-										// the voiceAdj value can only be used when there are two voices in the chord
+										// the voiceAdj value can only be used
+										// when there are two voices in the
+										// chord
 										// if not - set to zero
 										voiceAdj = 0;
 									}
 									stemActive = sArray4[1];
 								}
 							}
-							// voiceAdj is used to adjust the voice used to add notes in a chord for both Pos and Pos2
-							
+							// voiceAdj is used to adjust the voice used to add
+							// notes in a chord for both Pos and Pos2
+
 							sArray2 = sA.split(":");
 							if (sArray2[0].compareTo("Pos") == 0) {
 								String[] sArray3 = sArray2[1].split(",");
@@ -626,9 +649,13 @@ public class Nwc2MusicXML implements IConstants {
 									note.dur = dur;
 									note.setPos(sArray3[j]);
 									note.chord = chord;
-									if (j == 0)
+									if (j == 0) {
 										note.firstInChord = true;
-									measure.addElement(note, voiceId + voiceAdj); // adjust the voice based on Stem
+										if (measure.measureOffset > 0 && voiceAdj == 1)
+											measure.addElement(new Forward(measure.measureOffset), voiceId + voiceAdj);
+									}
+									// Adjust the voice based on Stem
+									measure.addElement(note, voiceId + voiceAdj);
 									if (line.contains("Dur2"))
 										measure.measureOffset -= note.getDuration();
 									notes.add(note);
@@ -648,16 +675,17 @@ public class Nwc2MusicXML implements IConstants {
 							sArray2 = sA.split("=");
 							String otherVoiceStem = null;
 							if (sArray2.length == 2) {
-								otherVoiceStem = sA.split("=")[1];								
+								otherVoiceStem = sA.split("=")[1];
 							}
 							if (chordHasTwoVoices && otherVoiceStem != null) {
 								for (Note note : notes) {
 									note.setOpts(otherVoiceStem);
-								}								
+								}
 							}
 						}
-						
-						// need to do the above with the opposite Stem on the other set of Notes
+
+						// need to do the above with the opposite Stem on the
+						// other set of Notes
 					}
 					if (type.compareTo("RestChord") == 0) {
 						if (!pos1) {
