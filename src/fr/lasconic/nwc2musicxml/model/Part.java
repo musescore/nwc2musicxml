@@ -38,4 +38,12 @@ public class Part {
 		}
 		return res;
 	}
+
+	public boolean containsStaffForGroup(String group) {
+		for (Staff staff : staves) {
+			if (staff.group.compareTo(group) == 0)
+				return true;
+		}
+		return false;
+	}
 }

@@ -106,6 +106,7 @@ public class Nwc2MusicXML implements IConstants {
 			}
 
 			tuneAsString = outStream.toString("UTF-8");
+			System.out.println(tuneAsString);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -372,24 +373,33 @@ public class Nwc2MusicXML implements IConstants {
 
 					measure = new Measure();
 					staff.addMeasure(measure);
-					p = new Part();
-					currentStaffId = 1;
-					score.addPart(p);
-					p.addStaff(staff);
+					String partName = null;
 					for (int i = 2; i < sArray.length; i++) {
 						sA = sArray[i];
 						if (sA.contains("Label")) {
 							sArray2 = sA.split(":");
 							if (sArray2[1].length() > 2) {
 								String label = sArray2[1].substring(1, sArray2[1].length() - 1);
-								p.name = label;
+								partName = label;
 							}
 
 						} else if (sA.contains("Name")) {
 							sArray2 = sA.split(":");
 							staff.name = sArray2[1];
+						} else if (sA.contains("Group")) {
+							sArray2 = sA.split(":");
+							staff.group = sArray2[1];
 						}
 					}
+					// create a new part only if needed
+					if (p == null || !p.containsStaffForGroup(staff.group)) {
+						p = new Part();
+						if (partName != null)
+						      p.name = partName;
+						currentStaffId = 1;
+						score.addPart(p);
+					}
+					p.addStaff(staff);
 				} else if (type.compareTo("StaffProperties") == 0) { // StaffProperties
 					init();
 					for (int i = 2; i < sArray.length; i++) {

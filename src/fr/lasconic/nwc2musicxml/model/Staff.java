@@ -6,6 +6,7 @@ import java.util.Set;
 
 public class Staff {
 	public String name;
+	public String group;
 	public ArrayList<Measure> measures;
 	public boolean visible;
 	public ArrayList<Lyrics> lyricsLine;
@@ -28,6 +29,8 @@ public class Staff {
 		this.visible = true;
 		this.slurStarted = null;
 		this.currentBeamCount = 0;
+		this.name = "";
+		this.group = "";
 	}
 
 	public void addMeasure(Measure measure) {
